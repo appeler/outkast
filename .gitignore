@@ -1,0 +1,11 @@
+.*
+!.gitignore
+!.gitattributes
+!.travis.yml
+*.pyc
+*.log
+./data
+build/
+outkast.egg-info/
+lit/
+dist/
