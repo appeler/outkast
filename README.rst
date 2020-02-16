@@ -3,8 +3,8 @@ outkast: estimate caste by last name, year, and state
 
 .. image:: https://travis-ci.org/appeler/outkast.svg?branch=master
     :target: https://travis-ci.org/appeler/outkast
-.. image:: https://ci.appveyor.com/api/projects/status/q4wr4clilf4samlk?svg=true
-    :target: https://ci.appveyor.com/project/soodoku/outkast
+.. image:: https://ci.appveyor.com/api/projects/status/uh8be9gytjo88d6f/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/appeler/outkast
 .. image:: https://img.shields.io/pypi/v/outkast.svg
     :target: https://pypi.python.org/pypi/outkast
 .. image:: https://pepy.tech/badge/outkast
