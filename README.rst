@@ -11,20 +11,17 @@ outkast: estimate caste by last name, year, and state
     :target: https://pepy.tech/project/outkast
 
 
-Using data on more than 420M Indians from the `Socio-Economic Caste Census <https://github.com/in-rolls/secc>`__ (parsed data `here <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB>`__), we estimate the proportion lower-caste for a particular last name, year, and state.
+Using data on more than 420M Indians from the `Socio-Economic Caste Census <https://github.com/in-rolls/secc>`__ (parsed data `here <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB>`__), we estimate the proportion `scheduled caste, scheduled tribe, and other` for a particular last name, year, and state.
 
 Why?
 ====
 
-We provide this package so that people can find ways to assess, highlight, and fight unfairness. 
+We provide this package so that people can assess, highlight, and fight unfairness.
 
 How is the underlying data produced?
 ====================================
 
-We split name into first name and last name and then aggregated per state, year.
-
-This is used to provide the base prediction.
-
+We split the name into first name and last name and then aggregated by last name, state, and year.
 
 Base Classifier
 ~~~~~~~~~~~~~~~
