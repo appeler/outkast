@@ -21,17 +21,17 @@ We provide this package so that people can assess, highlight, and fight unfairne
 How is the underlying data produced?
 ====================================
 
-1. The [script](outkast/data/secc/01_download_secc.ipynb) downloads the [clean version](https://github.com/in-rolls/secc) of the SECC posted [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB).
+1. The `script <outkast/data/secc/01_download_secc.ipynb>`__ downloads the `clean version <https://github.com/in-rolls/secc>`__ of the SECC posted `here <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB>`__.
 
-2. [Infer the last name](outkast/data/secc/02_clean_secc_recode.ipynb)
+2. `Infer the last name <outkast/data/secc/02_clean_secc_recode.ipynb>`__
   * remove names with non-alphabetical characters
   * remove records with missing last names
   * remove < 2 char last names
   * remove rows with birth_date < 1900
   * last name shared by at least 1000
-  * remove 'last_names' with sex ratio below < .5 and above 2 (after reporting the n_rows)
+  * remove 'last_names' with sex ratio below < .5 and above 2
 
-3. [Group by last name, state, and year](outkast/data/secc/03_outkast_dataset_state.ipynb) and produce the [underlying data](outkast/data/secc/secc_all_state_year_ln_outkast.csv.gz)
+3. `Group by last name, state, and year <outkast/data/secc/03_outkast_dataset_state.ipynb>`__ and produce the `underlying data <outkast/data/secc/secc_all_state_year_ln_outkast.csv.gz>`__
 
 Base Classifier
 ~~~~~~~~~~~~~~~
