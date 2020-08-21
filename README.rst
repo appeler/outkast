@@ -11,7 +11,7 @@ outkast: estimate caste by last name, year, and state
     :target: https://pepy.tech/project/outkast
 
 
-Using data on more than 420M Indians from the `Socio-Economic Caste Census <https://github.com/in-rolls/secc>`__ (parsed data `here <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB>`__), we estimate the proportion `scheduled caste, scheduled tribe, and other` for a particular last name, year, and state.
+Using data on more than 140M Indians across 19 states from the `Socio-Economic Caste Census <https://github.com/in-rolls/secc>`__ (parsed data `here <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB>`__), we estimate the proportion `scheduled caste, scheduled tribe, and other` for a particular last name, year, and state.
 
 Why?
 ====
@@ -21,13 +21,23 @@ We provide this package so that people can assess, highlight, and fight unfairne
 How is the underlying data produced?
 ====================================
 
-We split the name into first name and last name and then aggregated by last name, state, and year.
+1. The [script](outkast/data/secc/01_download_secc.ipynb) downloads the [clean version](https://github.com/in-rolls/secc) of the SECC posted [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB).
+
+2. [Infer the last name](outkast/data/secc/02_clean_secc_recode.ipynb)
+  * remove names with non-alphabetical characters
+  * remove records with missing last names
+  * remove < 2 char last names
+  * remove rows with birth_date < 1900
+  * last name shared by at least 1000
+  * remove 'last_names' with sex ratio below < .5 and above 2 (after reporting the n_rows)
+
+3. [Group by last name, state, and year](outkast/data/secc/03_outkast_dataset_state.ipynb) and produce the [underlying data](outkast/data/secc/secc_all_state_year_ln_outkast.csv.gz)
 
 Base Classifier
 ~~~~~~~~~~~~~~~
 
 We start by providing a base model for last\_name that gives the Bayes
-optimal solution providing the proportion of `SC, ST, and Other` with that last name. 
+optimal solution providing the proportion of `SC, ST, and Other` with that last name.
 We also provide a series of base models where the state of
 residence is known.
 
