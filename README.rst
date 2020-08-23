@@ -29,7 +29,6 @@ How is the underlying data produced?
   * remove < 2 char last names
   * remove rows with birth_date < 1900
   * last name shared by at least 1000
-  * remove 'last_names' with sex ratio below < .5 and above 2
 
 3. `Group by last name, state, and year <outkast/data/secc/03_outkast_dataset_state.ipynb>`__ and produce the `underlying data <outkast/data/secc/secc_all_state_year_ln_outkast.csv.gz>`__
 
