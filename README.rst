@@ -94,11 +94,12 @@ Using outkast
     >>> df = pd.DataFrame(names)
     >>>
     >>> secc_caste(df, 'name')
-        name     n_sc    n_st  n_other   prop_sc   prop_st  prop_other
-    0    patel    17043  336909  1894248  0.007581  0.149857    0.842562
-    1    kohli      468      57      552  0.434540  0.052925    0.512535
-    2      lal  2111632  725713  3943494  0.311412  0.107024    0.581564
-    3  agarwal      117      36    13125  0.008812  0.002711    0.988477
+        name      n_sc      n_st    n_other   prop_sc   prop_st  prop_other
+    0    patel    5681.0  112302.0   631393.0  0.007581  0.149861    0.842558
+    1    kohli       NaN       NaN        NaN       NaN       NaN         NaN
+    2      lal  703595.0  241846.0  1314224.0  0.311371  0.107027    0.581601
+    3  agarwal      39.0      12.0     4375.0  0.008812  0.002711    0.988477
+
     >>>
     >>> help(secc_caste)
     Help on method secc_caste in module outkast.secc_caste_ln:
