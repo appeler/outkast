@@ -24,6 +24,7 @@ How is the underlying data produced?
 1. The `script <outkast/data/secc/01_download_secc.ipynb>`__ downloads the `clean version <https://github.com/in-rolls/secc>`__ of the SECC posted `here <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB>`__.
 
 2. `Infer the last name <outkast/data/secc/02_clean_secc_recode.ipynb>`__
+
   * remove names with non-alphabetical characters
   * remove records with missing last names
   * remove < 2 char last names
