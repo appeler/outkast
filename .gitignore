@@ -8,3 +8,4 @@ build/
 outkast.egg-info/
 lit/
 dist/
+.DS_Store

@@ -1,29 +1,49 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-import sys
+from __future__ import annotations
+
 import argparse
-import pandas as pd
+import sys
+from importlib import resources
+from pathlib import Path
+from typing import Optional
 
-from pkg_resources import resource_filename
+import pandas as pd
 
 from .utils import column_exists, fixup_columns
 
-SECC_DATA = resource_filename(__name__, "data/secc/secc_all_state_year_ln_outkast.csv.gz")
-SECC_COLS = ['n_sc', 'n_st', 'n_other', 'prop_sc', 'prop_st', 'prop_other']
+
+def get_secc_data_path() -> Path:
+    """Get the path to the SECC data file using modern importlib.resources."""
+    with resources.as_file(
+        resources.files(__package__)
+        / "data"
+        / "secc"
+        / "secc_all_state_year_ln_outkast.csv.gz"
+    ) as data_file:
+        return data_file
 
 
-class SeccCasteLnData():
-    __df = None
-    __state = None
-    __year = None
+SECC_COLS = ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
+
+
+class SeccCasteLnData:
+    __df: Optional[pd.DataFrame] = None
+    __state: Optional[str] = None
+    __year: Optional[int] = None
 
     @classmethod
-    def secc_caste(cls, df, namecol, state=None, year=None):
+    def secc_caste(
+        cls,
+        df: pd.DataFrame,
+        namecol: str | int,
+        state: Optional[str] = None,
+        year: Optional[int] = None,
+    ) -> pd.DataFrame:
         """Appends additional columns from SECC data to the input DataFrame
         based on the last name.
 
-        Removes extra space. Checks if the name is the SECC data. 
+        Removes extra space. Checks if the name is the SECC data.
         If it is, outputs data from that row.
 
         Args:
@@ -44,68 +64,97 @@ class SeccCasteLnData():
         """
 
         if namecol not in df.columns:
-            print("No column `{0!s}` in the DataFrame".format(namecol))
+            print(f"No column `{namecol}` in the DataFrame")
             return df
 
-        df['__last_name'] = df[namecol].str.strip()
-        df['__last_name'] = df['__last_name'].str.lower()
+        df["__last_name"] = df[namecol].str.strip()
+        df["__last_name"] = df["__last_name"].str.lower()
 
         if cls.__df is None or cls.__state != state or cls.__year != year:
-            adf = pd.read_csv(SECC_DATA, usecols=['state', 'birth_year',
-                              'last_name', 'n_sc', 'n_st', 'n_other'])
-            agg_dict = {'n_sc': 'sum', 'n_st': 'sum', 'n_other': 'sum'}
-            if state and year:
-                adf = adf[(adf.state==state) & (adf.birth_year==year)].copy()
-                del adf['birth_year']
-                del adf['state']
-            elif state:
-                adf = adf.groupby(['state', 'last_name']).agg(agg_dict).reset_index()
-                adf = adf[adf.state==state].copy()
-                del adf['state']
-            elif year:
-                adf = adf.groupby(['birth_year', 'last_name']).agg(agg_dict).reset_index()
-                adf = adf[adf.birth_year==year].copy()
-                del adf['birth_year']
-            else:
-                adf = adf.groupby(['last_name']).agg(agg_dict).reset_index()
-            n = adf['n_sc'] + adf['n_st'] + adf['n_other']
-            adf['prop_sc'] = adf['n_sc'] / n
-            adf['prop_st'] = adf['n_st'] / n
-            adf['prop_other'] = adf['n_other'] / n
+            secc_data_path = get_secc_data_path()
+            adf = pd.read_csv(
+                secc_data_path,
+                usecols=["state", "birth_year", "last_name", "n_sc", "n_st", "n_other"],
+            )
+            agg_dict = {"n_sc": "sum", "n_st": "sum", "n_other": "sum"}
+            match (state, year):
+                case (str(), int()):
+                    adf = adf[(adf.state == state) & (adf.birth_year == year)].copy()
+                    adf = adf.drop(columns=["birth_year", "state"])
+                case (str(), None):
+                    adf = (
+                        adf.groupby(["state", "last_name"]).agg(agg_dict).reset_index()
+                    )
+                    adf = adf[adf.state == state].copy()
+                    adf = adf.drop(columns=["state"])
+                case (None, int()):
+                    adf = (
+                        adf.groupby(["birth_year", "last_name"])
+                        .agg(agg_dict)
+                        .reset_index()
+                    )
+                    adf = adf[adf.birth_year == year].copy()
+                    adf = adf.drop(columns=["birth_year"])
+                case (None, None):
+                    adf = adf.groupby(["last_name"]).agg(agg_dict).reset_index()
+            n = adf["n_sc"] + adf["n_st"] + adf["n_other"]
+            adf["prop_sc"] = adf["n_sc"] / n
+            adf["prop_st"] = adf["n_st"] / n
+            adf["prop_other"] = adf["n_other"] / n
             cls.__df = adf
-            cls.__df = cls.__df[['last_name'] + SECC_COLS]
-            cls.__df.rename(columns={'last_name': '__last_name'}, inplace=True)
-        rdf = pd.merge(df, cls.__df, how='left', on='__last_name')
+            cls.__df = cls.__df[["last_name"] + SECC_COLS]
+            cls.__df.rename(columns={"last_name": "__last_name"}, inplace=True)
+            cls.__state = state
+            cls.__year = year
 
-        del rdf['__last_name']
+        rdf = pd.merge(df, cls.__df, how="left", on="__last_name")
+        rdf = rdf.drop(columns=["__last_name"])
 
         return rdf
 
     @staticmethod
-    def list_states():
-        adf = pd.read_csv(SECC_DATA, usecols=['state'])
-        return adf.state.unique()
+    def list_states() -> list[str]:
+        secc_data_path = get_secc_data_path()
+        adf = pd.read_csv(secc_data_path, usecols=["state"])
+        return adf.state.unique().tolist()
 
 
 secc_caste = SeccCasteLnData.secc_caste
 
 
-def main(argv=sys.argv[1:]):
-    title = ('Appends SECC 2011 data columns for sc, st, and other by last name')
+def main(argv: list[str] = None) -> int:
+    if argv is None:
+        argv = sys.argv[1:]
+
+    title = "Appends SECC 2011 data columns for sc, st, and other by last name"
     parser = argparse.ArgumentParser(description=title)
-    parser.add_argument('input', default=None,
-                        help='Input file')
-    parser.add_argument('-l', '--last-name', required=True,
-                        help='Name or index location of column contains '
-                             'the last name')
-    parser.add_argument('-s', '--state', default=None,
-                        choices=SeccCasteLnData.list_states(),
-                        help='State name of SECC data '
-                             '(default=all)')
-    parser.add_argument('-y', '--year', type=int, default=None,
-                        help='Birth year in SECC data (default=all)')
-    parser.add_argument('-o', '--output', default='secc-caste-output.csv',
-                        help='Output file with SECC data columns')
+    parser.add_argument("input", default=None, help="Input file")
+    parser.add_argument(
+        "-l",
+        "--last-name",
+        required=True,
+        help="Name or index location of column contains " "the last name",
+    )
+    parser.add_argument(
+        "-s",
+        "--state",
+        default=None,
+        choices=SeccCasteLnData.list_states(),
+        help="State name of SECC data " "(default=all)",
+    )
+    parser.add_argument(
+        "-y",
+        "--year",
+        type=int,
+        default=None,
+        help="Birth year in SECC data (default=all)",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        default="secc-caste-output.csv",
+        help="Output file with SECC data columns",
+    )
 
     args = parser.parse_args(argv)
 
@@ -122,7 +171,7 @@ def main(argv=sys.argv[1:]):
 
     rdf = secc_caste(df, args.last_name, args.state, args.year)
 
-    print("Saving output to file: `{0:s}`".format(args.output))
+    print(f"Saving output to file: `{args.output}`")
     rdf.columns = fixup_columns(rdf.columns)
     rdf.to_csv(args.output, index=False)
 
