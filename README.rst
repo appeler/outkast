@@ -1,12 +1,14 @@
 outkast: estimate caste by last name, year, and state
 -----------------------------------------------------
 
-.. image:: https://travis-ci.org/appeler/outkast.svg?branch=master
-    :target: https://travis-ci.org/appeler/outkast
+.. image:: https://github.com/appeler/outkast/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/appeler/outkast/actions/workflows/ci.yml
 .. image:: https://img.shields.io/pypi/v/outkast.svg
     :target: https://pypi.python.org/pypi/outkast
 .. image:: https://pepy.tech/badge/outkast
     :target: https://pepy.tech/project/outkast
+.. image:: https://img.shields.io/badge/docs-github.io-blue
+    :target: https://appeler.github.io/outkast/
 
 
 Using data on more than 140M Indians across 19 states from the `Socio-Economic Caste Census <https://github.com/in-rolls/secc>`__ (parsed data `here <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LIIBNB>`__), we estimate the proportion `scheduled caste, scheduled tribe, and other` for a particular last name, year, and state.
