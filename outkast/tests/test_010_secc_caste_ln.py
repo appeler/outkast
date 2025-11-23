@@ -1,20 +1,15 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 Tests for secc_caste_ln.py
 
 """
 
-import os
-import shutil
 import unittest
 
 import pandas as pd
 
 from outkast import secc_caste
-
-from . import capture
 
 
 class TestInRollsFn(unittest.TestCase):

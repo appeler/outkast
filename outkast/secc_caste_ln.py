@@ -6,7 +6,6 @@ import argparse
 import sys
 from importlib import resources
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 
@@ -28,17 +27,17 @@ SECC_COLS = ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
 
 
 class SeccCasteLnData:
-    __df: Optional[pd.DataFrame] = None
-    __state: Optional[str] = None
-    __year: Optional[int] = None
+    __df: pd.DataFrame | None = None
+    __state: str | None = None
+    __year: int | None = None
 
     @classmethod
     def secc_caste(
         cls,
         df: pd.DataFrame,
         namecol: str | int,
-        state: Optional[str] = None,
-        year: Optional[int] = None,
+        state: str | None = None,
+        year: int | None = None,
     ) -> pd.DataFrame:
         """Appends additional columns from SECC data to the input DataFrame
         based on the last name.

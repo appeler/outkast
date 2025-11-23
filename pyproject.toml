@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.21.1"]
+build-backend = "hatchling.build"
 
 [project]
 name = "outkast"
@@ -31,8 +31,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["check-manifest"]
-test = ["coverage", "pytest", "pytest-cov"]
+docs = [
+    "sphinx>=7.0",
+    "furo>=2024.1.29",
+    "sphinx-autodoc-typehints>=1.25",
+    "sphinx-copybutton>=0.5",
+    "myst-parser>=2.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/appeler/outkast"
@@ -42,12 +47,33 @@ Issues = "https://github.com/appeler/outkast/issues"
 [project.scripts]
 secc_caste = "outkast.secc_caste_ln:main"
 
-[tool.setuptools]
+[tool.hatch.build.targets.wheel]
 packages = ["outkast"]
-include-package-data = true
 
-[tool.setuptools.package-data]
-outkast = ["data/secc/secc_all_state_year_ln_outkast.csv.gz"]
+[tool.hatch.build.targets.wheel.force-include]
+"outkast/data" = "outkast/data"
+
+[dependency-groups]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.7.0", "mypy>=1.0", "pre-commit>=3.0"]
+test = ["pytest>=7.0", "pytest-cov>=4.0"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+check_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["outkast/tests"]
