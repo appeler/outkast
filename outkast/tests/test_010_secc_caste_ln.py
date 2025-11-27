@@ -13,7 +13,6 @@ from outkast import secc_caste
 
 
 class TestInRollsFn(unittest.TestCase):
-
     def setUp(self):
         names = [
             {"name": "patel"},

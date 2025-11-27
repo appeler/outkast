@@ -132,14 +132,14 @@ def main(argv: list[str] = None) -> int:
         "-l",
         "--last-name",
         required=True,
-        help="Name or index location of column contains " "the last name",
+        help="Name or index location of column contains the last name",
     )
     parser.add_argument(
         "-s",
         "--state",
         default=None,
         choices=SeccCasteLnData.list_states(),
-        help="State name of SECC data " "(default=all)",
+        help="State name of SECC data (default=all)",
     )
     parser.add_argument(
         "-y",

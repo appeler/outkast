@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 try:
     from StringIO import StringIO
-except:
+except ImportError:
     from io import StringIO
 
 

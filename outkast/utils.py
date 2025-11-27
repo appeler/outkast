@@ -59,7 +59,7 @@ def find_ngrams(vocab: list[str], text: str, n: int) -> list[int]:
     if not isinstance(text, str):
         return wi
 
-    a = zip(*[text[i:] for i in range(n)])
+    a = zip(*[text[i:] for i in range(n)], strict=False)
     for i in a:
         w = "".join(i)
         try:
