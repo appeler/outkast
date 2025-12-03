@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.21.1"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
@@ -50,9 +50,6 @@ secc_caste = "outkast.secc_caste_ln:main"
 [tool.hatch.build.targets.wheel]
 packages = ["outkast"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"outkast/data" = "outkast/data"
-
 [dependency-groups]
 dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.7.0", "mypy>=1.0", "pre-commit>=3.0"]
 test = ["pytest>=7.0", "pytest-cov>=4.0"]
@@ -84,7 +81,7 @@ warn_unused_configs = true
 check_untyped_defs = true
 
 [tool.pytest.ini_options]
-testpaths = ["outkast/tests"]
+testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
