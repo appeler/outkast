@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import logging
 from collections.abc import Sequence
 
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def column_exists(df: pd.DataFrame, col: str | int) -> bool:
@@ -15,11 +18,15 @@ def column_exists(df: pd.DataFrame, col: str | int) -> bool:
     Returns:
         True if exists, False if not exists.
     """
-    if col and (col not in df.columns):
-        print(f"The specify column `{col}` not found in the input file")
+    if col is None or col == "":
+        logger.error("Column name cannot be None or empty")
         return False
-    else:
-        return True
+
+    if col not in df.columns:
+        logger.error(f"The specified column `{col}` not found in the input file")
+        return False
+
+    return True
 
 
 def fixup_columns(cols: Sequence[str | int]) -> list[str]:
@@ -53,6 +60,7 @@ def find_ngrams(vocab: Sequence[str], text: str, n: int) -> list[int]:
 
     Returns:
         List of the index of n-grams in the vocabulary list.
+        Returns -1 for n-grams not found in vocabulary.
     """
     wi = []
 
@@ -65,6 +73,6 @@ def find_ngrams(vocab: Sequence[str], text: str, n: int) -> list[int]:
         try:
             idx = vocab.index(w)
         except ValueError:
-            idx = 0
+            idx = -1  # Use -1 to indicate "not found"
         wi.append(idx)
     return wi

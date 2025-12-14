@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 from dataclasses import dataclass
 from importlib import resources
@@ -12,6 +13,16 @@ from typing import ClassVar, Self
 import pandas as pd
 
 from .utils import column_exists, fixup_columns
+
+# Set up logging
+logger = logging.getLogger(__name__)
+
+def configure_logging(level: str = "WARNING") -> None:
+    """Configure logging for the module."""
+    logging.basicConfig(
+        level=getattr(logging, level.upper()),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
 
 def get_secc_data_path() -> Path:
@@ -66,11 +77,15 @@ class SeccCasteLnData:
         """
 
         if namecol not in df.columns:
-            print(f"No column `{namecol}` in the DataFrame")
+            logger.error(f"No column `{namecol}` in the DataFrame")
             return df
 
-        df["__last_name"] = df[namecol].str.strip()
-        df["__last_name"] = df["__last_name"].str.lower()
+        # Work on a copy to avoid modifying the input DataFrame
+        df_copy = df.copy()
+
+        # Convert name column to string type to handle numeric values
+        name_series = df_copy[namecol].astype(str).str.strip().str.lower()
+        df_copy["__last_name"] = name_series
 
         if cls.__df is None or cls.__state != state or cls.__year != year:
             secc_data_path = get_secc_data_path()
@@ -109,7 +124,7 @@ class SeccCasteLnData:
             cls.__state = state
             cls.__year = year
 
-        rdf = pd.merge(df, cls.__df, how="left", on="__last_name")
+        rdf = pd.merge(df_copy, cls.__df, how="left", on="__last_name")
         rdf = rdf.drop(columns=["__last_name"])
 
         return rdf
@@ -127,6 +142,9 @@ secc_caste = SeccCasteLnData.secc_caste
 def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
+
+    # Configure logging for CLI usage
+    configure_logging("INFO")
 
     title = "Appends SECC 2011 data columns for sc, st, and other by last name"
     parser = argparse.ArgumentParser(description=title)
@@ -160,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    print(args)
+    logger.info(f"Arguments: {args}")
 
     if not args.last_name.isdigit():
         df = pd.read_csv(args.input)
@@ -173,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
 
     rdf = secc_caste(df, args.last_name, args.state, args.year)
 
-    print(f"Saving output to file: `{args.output}`")
+    logger.info(f"Saving output to file: `{args.output}`")
     rdf.columns = fixup_columns(rdf.columns)
     rdf.to_csv(args.output, index=False)
 
