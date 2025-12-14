@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from collections.abc import Sequence
 
 import pandas as pd
 
@@ -22,7 +22,7 @@ def column_exists(df: pd.DataFrame, col: str | int) -> bool:
         return True
 
 
-def fixup_columns(cols: list[Any]) -> list[str]:
+def fixup_columns(cols: Sequence[str | int]) -> list[str]:
     """Replace index location column to name with `col` prefix
 
     Args:
@@ -40,7 +40,7 @@ def fixup_columns(cols: list[Any]) -> list[str]:
     return out_cols
 
 
-def find_ngrams(vocab: list[str], text: str, n: int) -> list[int]:
+def find_ngrams(vocab: Sequence[str], text: str, n: int) -> list[int]:
     """Find and return list of the index of n-grams in the vocabulary list.
 
     Generate the n-grams of the specific text, find them in the vocabulary list

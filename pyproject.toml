@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"
 
 [project]
 name = "outkast"
@@ -27,7 +27,6 @@ classifiers = [
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=0.19.2",
-    "numpy>=1.22.2",
 ]
 
 [project.optional-dependencies]
@@ -47,8 +46,9 @@ Issues = "https://github.com/appeler/outkast/issues"
 [project.scripts]
 secc_caste = "outkast.secc_caste_ln:main"
 
-[tool.hatch.build.targets.wheel]
-packages = ["outkast"]
+[tool.uv.build-backend]
+module-name = "outkast"
+module-root = ""
 
 [dependency-groups]
 dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.7.0", "mypy>=1.0", "pre-commit>=3.0"]
@@ -96,3 +96,8 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
 ]
+
+[tool.deptry]
+extend_exclude = ["data"]
+ignore_notebooks = true
+pep621_dev_dependency_groups = ["docs"]

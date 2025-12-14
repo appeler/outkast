@@ -4,19 +4,24 @@ from __future__ import annotations
 
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# Import version from package metadata
+try:
+    from importlib.metadata import version
+    release = version("outkast")
+except ImportError:
+    release = "unknown"
+
 # Project information
 project = "outkast"
-copyright = "2024, Gaurav Sood, Suriyan Laohaprapanon"
+copyright = f"{datetime.now().year}, Gaurav Sood, Suriyan Laohaprapanon"
 author = "Gaurav Sood, Suriyan Laohaprapanon"
-
-# The full version, including alpha/beta/rc tags
-release = "1.0.0"
 
 # Extensions
 extensions = [

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import argparse
 import sys
+from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
+from typing import ClassVar, Self
 
 import pandas as pd
 
@@ -26,14 +28,15 @@ def get_secc_data_path() -> Path:
 SECC_COLS = ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
 
 
+@dataclass(slots=True)
 class SeccCasteLnData:
-    __df: pd.DataFrame | None = None
-    __state: str | None = None
-    __year: int | None = None
+    __df: ClassVar[pd.DataFrame | None] = None
+    __state: ClassVar[str | None] = None
+    __year: ClassVar[int | None] = None
 
     @classmethod
     def secc_caste(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         namecol: str | int,
         state: str | None = None,
@@ -115,13 +118,13 @@ class SeccCasteLnData:
     def list_states() -> list[str]:
         secc_data_path = get_secc_data_path()
         adf = pd.read_csv(secc_data_path, usecols=["state"])
-        return adf.state.unique().tolist()
+        return list(adf.state.unique())
 
 
 secc_caste = SeccCasteLnData.secc_caste
 
 
-def main(argv: list[str] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
 

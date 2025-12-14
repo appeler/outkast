@@ -5,6 +5,8 @@ Tests for secc_caste_ln.py
 
 """
 
+from __future__ import annotations
+
 import unittest
 
 import pandas as pd
@@ -13,7 +15,7 @@ from outkast import secc_caste
 
 
 class TestInRollsFn(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         names = [
             {"name": "patel"},
             {"name": "kohli"},
@@ -22,20 +24,20 @@ class TestInRollsFn(unittest.TestCase):
         ]
         self.df = pd.DataFrame(names)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def test_secc_caste_ln(self):
+    def test_secc_caste_ln(self) -> None:
         odf = secc_caste(self.df, "name")
         self.assertIn("prop_sc", odf.columns)
         self.assertTrue(odf.iloc[2].prop_sc > 0.3)
 
-    def test_secc_caste_ln_state(self):
+    def test_secc_caste_ln_state(self) -> None:
         odf = secc_caste(self.df, "name", "kerala")
         self.assertIn("prop_sc", odf.columns)
         self.assertTrue(odf.iloc[2].prop_sc > 0.1)
 
-    def test_secc_caste_ln_state_year(self):
+    def test_secc_caste_ln_state_year(self) -> None:
         odf = secc_caste(self.df, "name", "kerala", 1985)
         self.assertIn("prop_sc", odf.columns)
         self.assertTrue(odf.iloc[2].prop_sc > 0.1)
