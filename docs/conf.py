@@ -13,9 +13,9 @@ sys.path.insert(0, str(project_root))
 
 # Import version from package metadata
 try:
-    from importlib.metadata import version
+    from importlib.metadata import version as get_version
 
-    release = version("outkast")
+    release = get_version("outkast")
 except ImportError:
     release = "unknown"
 
@@ -73,14 +73,8 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/docs/", None),
 }
 
-# HTML theme options
-html_theme_options = {
-    "navigation_depth": 4,
-    "collapse_navigation": False,
-    "sticky_navigation": True,
-    "includehidden": True,
-    "titles_only": False,
-}
+# HTML theme options (for Furo theme)
+html_theme_options = {}
 
 # HTML context
 html_context = {
