@@ -14,6 +14,7 @@ sys.path.insert(0, str(project_root))
 # Import version from package metadata
 try:
     from importlib.metadata import version
+
     release = version("outkast")
 except ImportError:
     release = "unknown"

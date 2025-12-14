@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 
 from .secc_caste_ln import secc_caste
 
