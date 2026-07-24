@@ -20,10 +20,9 @@ from outkast.secc_caste_ln import main
 class TestCLIFunctionality(unittest.TestCase):
     def setUp(self) -> None:
         # Create a temporary CSV file for testing
-        self.test_data = pd.DataFrame({
-            "name": ["patel", "kohli", "sharma", "gupta"],
-            "age": [25, 30, 35, 40]
-        })
+        self.test_data = pd.DataFrame(
+            {"name": ["patel", "kohli", "sharma", "gupta"], "age": [25, 30, 35, 40]}
+        )
 
         self.temp_file = tempfile.NamedTemporaryFile(
             mode="w", suffix=".csv", delete=False
@@ -48,7 +47,8 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test basic CLI functionality with required arguments."""
         args = [
             str(self.temp_path),
-            "--last-name", "name",
+            "--last-name",
+            "name",
         ]
 
         # CLI should complete successfully
@@ -63,7 +63,16 @@ class TestCLIFunctionality(unittest.TestCase):
 
         # Verify output file content
         result_df = pd.read_csv(output_file)
-        expected_cols = ["name", "age", "n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
+        expected_cols = [
+            "name",
+            "age",
+            "n_sc",
+            "n_st",
+            "n_other",
+            "prop_sc",
+            "prop_st",
+            "prop_other",
+        ]
         for col in expected_cols:
             self.assertIn(col, result_df.columns)
 
@@ -73,8 +82,10 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test CLI with custom output filename."""
         args = [
             str(self.temp_path),
-            "--last-name", "name",
-            "--output", "test-output.csv"
+            "--last-name",
+            "name",
+            "--output",
+            "test-output.csv",
         ]
 
         with patch("sys.stdout", new_callable=StringIO):
@@ -90,8 +101,10 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test CLI with state filtering."""
         args = [
             str(self.temp_path),
-            "--last-name", "name",
-            "--state", "kerala",
+            "--last-name",
+            "name",
+            "--state",
+            "kerala",
         ]
 
         with patch("sys.stdout", new_callable=StringIO):
@@ -103,8 +116,10 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test CLI with year filtering."""
         args = [
             str(self.temp_path),
-            "--last-name", "name",
-            "--year", "1985",
+            "--last-name",
+            "name",
+            "--year",
+            "1985",
         ]
 
         with patch("sys.stdout", new_callable=StringIO):
@@ -116,9 +131,12 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test CLI with both state and year filtering."""
         args = [
             str(self.temp_path),
-            "--last-name", "name",
-            "--state", "kerala",
-            "--year", "1985",
+            "--last-name",
+            "name",
+            "--state",
+            "kerala",
+            "--year",
+            "1985",
         ]
 
         with patch("sys.stdout", new_callable=StringIO):
@@ -139,7 +157,8 @@ class TestCLIFunctionality(unittest.TestCase):
         try:
             args = [
                 str(temp_path_no_header),
-                "--last-name", "0",  # First column (name)
+                "--last-name",
+                "0",  # First column (name)
             ]
 
             with patch("sys.stdout", new_callable=StringIO):
@@ -154,7 +173,8 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test CLI with invalid column name."""
         args = [
             str(self.temp_path),
-            "--last-name", "invalid_column",
+            "--last-name",
+            "invalid_column",
         ]
 
         with patch("sys.stdout", new_callable=StringIO):
@@ -167,7 +187,8 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test CLI with invalid column index."""
         args = [
             str(self.temp_path),
-            "--last-name", "10",  # Out of bounds index
+            "--last-name",
+            "10",  # Out of bounds index
         ]
 
         with patch("sys.stdout", new_callable=StringIO):
@@ -180,7 +201,8 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test CLI with non-existent input file."""
         args = [
             "nonexistent_file.csv",
-            "--last-name", "name",
+            "--last-name",
+            "name",
         ]
 
         with self.assertRaises(FileNotFoundError):
@@ -209,8 +231,10 @@ class TestCLIFunctionality(unittest.TestCase):
         """Test CLI with invalid state name."""
         args = [
             str(self.temp_path),
-            "--last-name", "name",
-            "--state", "invalid_state",
+            "--last-name",
+            "name",
+            "--state",
+            "invalid_state",
         ]
 
         # Should exit with error due to invalid choice
@@ -225,8 +249,10 @@ class TestCLIFunctionality(unittest.TestCase):
         for state in valid_states:
             args = [
                 str(self.temp_path),
-                "--last-name", "name",
-                "--state", state,
+                "--last-name",
+                "name",
+                "--state",
+                state,
             ]
 
             with patch("sys.stdout", new_callable=StringIO):
@@ -249,8 +275,10 @@ class TestCLIFunctionality(unittest.TestCase):
         try:
             args = [
                 str(temp_int_path),
-                "--last-name", "1",  # Second column
-                "--output", "int-cols-output.csv"
+                "--last-name",
+                "1",  # Second column
+                "--output",
+                "int-cols-output.csv",
             ]
 
             with patch("sys.stdout", new_callable=StringIO):

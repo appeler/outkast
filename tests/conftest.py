@@ -17,30 +17,34 @@ import pytest
 @pytest.fixture
 def sample_names_df() -> pd.DataFrame:
     """Fixture providing a sample DataFrame with Indian names for testing."""
-    return pd.DataFrame({
-        "name": ["patel", "kohli", "sharma", "gupta", "singh", "kumar"],
-        "age": [25, 30, 35, 40, 45, 50],
-        "city": ["mumbai", "delhi", "bangalore", "chennai", "pune", "hyderabad"]
-    })
+    return pd.DataFrame(
+        {
+            "name": ["patel", "kohli", "sharma", "gupta", "singh", "kumar"],
+            "age": [25, 30, 35, 40, 45, 50],
+            "city": ["mumbai", "delhi", "bangalore", "chennai", "pune", "hyderabad"],
+        }
+    )
 
 
 @pytest.fixture
 def edge_case_names_df() -> pd.DataFrame:
     """Fixture providing DataFrame with edge case names."""
-    return pd.DataFrame({
-        "name": [
-            "patel",           # Normal case
-            "PATEL",           # Uppercase
-            "  patel  ",       # Whitespace
-            "",                # Empty string
-            None,              # None value
-            "o'brien",         # Apostrophe
-            "jean-luc",        # Hyphen
-            "रम",              # Unicode
-            "a" * 100,         # Very long name
-            "123",             # Numeric string
-        ]
-    })
+    return pd.DataFrame(
+        {
+            "name": [
+                "patel",  # Normal case
+                "PATEL",  # Uppercase
+                "  patel  ",  # Whitespace
+                "",  # Empty string
+                None,  # None value
+                "o'brien",  # Apostrophe
+                "jean-luc",  # Hyphen
+                "रम",  # Unicode
+                "a" * 100,  # Very long name
+                "123",  # Numeric string
+            ]
+        }
+    )
 
 
 @pytest.fixture
@@ -59,11 +63,13 @@ def large_df() -> pd.DataFrame:
 @pytest.fixture
 def temp_csv_file() -> Generator[Path, None, None]:
     """Fixture providing a temporary CSV file with test data."""
-    test_data = pd.DataFrame({
-        "name": ["patel", "kohli", "sharma", "gupta"],
-        "age": [25, 30, 35, 40],
-        "occupation": ["engineer", "doctor", "teacher", "lawyer"]
-    })
+    test_data = pd.DataFrame(
+        {
+            "name": ["patel", "kohli", "sharma", "gupta"],
+            "age": [25, 30, 35, 40],
+            "occupation": ["engineer", "doctor", "teacher", "lawyer"],
+        }
+    )
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
         test_data.to_csv(f.name, index=False)
@@ -78,10 +84,9 @@ def temp_csv_file() -> Generator[Path, None, None]:
 @pytest.fixture
 def temp_csv_no_header() -> Generator[Path, None, None]:
     """Fixture providing a temporary CSV file without headers."""
-    test_data = pd.DataFrame({
-        "name": ["patel", "kohli", "sharma"],
-        "value": [100, 200, 300]
-    })
+    test_data = pd.DataFrame(
+        {"name": ["patel", "kohli", "sharma"], "value": [100, 200, 300]}
+    )
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
         test_data.to_csv(f.name, index=False, header=False)
@@ -96,14 +101,23 @@ def temp_csv_no_header() -> Generator[Path, None, None]:
 @pytest.fixture
 def mock_secc_data() -> pd.DataFrame:
     """Fixture providing mock SECC data for testing."""
-    return pd.DataFrame({
-        "state": ["kerala", "kerala", "bihar", "bihar", "uttar pradesh", "uttar pradesh"],
-        "birth_year": [1980, 1985, 1980, 1985, 1980, 1985],
-        "last_name": ["patel", "patel", "kohli", "kohli", "sharma", "sharma"],
-        "n_sc": [10, 15, 5, 8, 20, 25],
-        "n_st": [2, 3, 1, 2, 4, 5],
-        "n_other": [88, 82, 94, 90, 76, 70]
-    })
+    return pd.DataFrame(
+        {
+            "state": [
+                "kerala",
+                "kerala",
+                "bihar",
+                "bihar",
+                "uttar pradesh",
+                "uttar pradesh",
+            ],
+            "birth_year": [1980, 1985, 1980, 1985, 1980, 1985],
+            "last_name": ["patel", "patel", "kohli", "kohli", "sharma", "sharma"],
+            "n_sc": [10, 15, 5, 8, 20, 25],
+            "n_st": [2, 3, 1, 2, 4, 5],
+            "n_other": [88, 82, 94, 90, 76, 70],
+        }
+    )
 
 
 @pytest.fixture
@@ -116,8 +130,16 @@ def expected_secc_columns() -> list[str]:
 def known_indian_states() -> list[str]:
     """Fixture providing list of known Indian states for testing."""
     return [
-        "kerala", "bihar", "uttar pradesh", "maharashtra", "tamil nadu",
-        "karnataka", "gujarat", "rajasthan", "punjab", "haryana"
+        "kerala",
+        "bihar",
+        "uttar pradesh",
+        "maharashtra",
+        "tamil nadu",
+        "karnataka",
+        "gujarat",
+        "rajasthan",
+        "punjab",
+        "haryana",
     ]
 
 
@@ -165,24 +187,16 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
-    config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests"
-    )
-    config.addinivalue_line(
-        "markers", "unit: marks tests as unit tests"
-    )
-    config.addinivalue_line(
-        "markers", "cli: marks tests as CLI tests"
-    )
-    config.addinivalue_line(
-        "markers", "mock: marks tests that use mocking"
-    )
+    config.addinivalue_line("markers", "integration: marks tests as integration tests")
+    config.addinivalue_line("markers", "unit: marks tests as unit tests")
+    config.addinivalue_line("markers", "cli: marks tests as CLI tests")
+    config.addinivalue_line("markers", "mock: marks tests that use mocking")
 
 
 # Skip markers for conditional testing
 skip_if_no_secc_data = pytest.mark.skipif(
     True,  # We'll always skip these in CI/development without real data
-    reason="SECC data file not available"
+    reason="SECC data file not available",
 )
 
 

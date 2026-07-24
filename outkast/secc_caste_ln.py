@@ -17,11 +17,12 @@ from .utils import column_exists, fixup_columns
 # Set up logging
 logger = logging.getLogger(__name__)
 
+
 def configure_logging(level: str = "WARNING") -> None:
     """Configure logging for the module."""
     logging.basicConfig(
         level=getattr(logging, level.upper()),
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
 

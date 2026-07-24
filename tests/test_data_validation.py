@@ -16,9 +16,9 @@ from outkast import secc_caste
 
 class TestDataValidation(unittest.TestCase):
     def setUp(self) -> None:
-        self.test_df = pd.DataFrame({
-            "name": ["patel", "kohli", "sharma", "unknown_name_xyz"]
-        })
+        self.test_df = pd.DataFrame(
+            {"name": ["patel", "kohli", "sharma", "unknown_name_xyz"]}
+        )
 
     def test_output_column_data_types(self) -> None:
         """Test that output columns have correct data types."""
@@ -29,7 +29,7 @@ class TestDataValidation(unittest.TestCase):
         for col in numeric_cols:
             self.assertTrue(
                 pd.api.types.is_numeric_dtype(result[col]),
-                f"Column {col} should be numeric, got {result[col].dtype}"
+                f"Column {col} should be numeric, got {result[col].dtype}",
             )
 
     def test_proportion_columns_sum_to_one(self) -> None:
@@ -42,8 +42,10 @@ class TestDataValidation(unittest.TestCase):
             if not pd.isna(row.prop_sc):
                 total_prop = row.prop_sc + row.prop_st + row.prop_other
                 self.assertAlmostEqual(
-                    total_prop, 1.0, places=10,
-                    msg=f"Proportions don't sum to 1.0 for row {idx}: {total_prop}"
+                    total_prop,
+                    1.0,
+                    places=10,
+                    msg=f"Proportions don't sum to 1.0 for row {idx}: {total_prop}",
                 )
 
     def test_proportion_values_between_zero_and_one(self) -> None:
@@ -58,11 +60,11 @@ class TestDataValidation(unittest.TestCase):
             # All valid values should be between 0 and 1
             self.assertTrue(
                 (valid_values >= 0.0).all(),
-                f"Found negative values in {col}: {valid_values[valid_values < 0].tolist()}"
+                f"Found negative values in {col}: {valid_values[valid_values < 0].tolist()}",
             )
             self.assertTrue(
                 (valid_values <= 1.0).all(),
-                f"Found values > 1.0 in {col}: {valid_values[valid_values > 1].tolist()}"
+                f"Found values > 1.0 in {col}: {valid_values[valid_values > 1].tolist()}",
             )
 
     def test_count_columns_non_negative(self) -> None:
@@ -76,7 +78,7 @@ class TestDataValidation(unittest.TestCase):
             # All valid values should be non-negative
             self.assertTrue(
                 (valid_values >= 0).all(),
-                f"Found negative counts in {col}: {valid_values[valid_values < 0].tolist()}"
+                f"Found negative counts in {col}: {valid_values[valid_values < 0].tolist()}",
             )
 
     def test_missing_name_handling(self) -> None:
@@ -86,7 +88,15 @@ class TestDataValidation(unittest.TestCase):
         result = secc_caste(missing_name_df, "name")
 
         # Should have all expected columns
-        expected_cols = ["name", "n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
+        expected_cols = [
+            "name",
+            "n_sc",
+            "n_st",
+            "n_other",
+            "prop_sc",
+            "prop_st",
+            "prop_other",
+        ]
         for col in expected_cols:
             self.assertIn(col, result.columns)
 
@@ -118,18 +128,14 @@ class TestDataValidation(unittest.TestCase):
     def test_output_row_count_matches_input(self) -> None:
         """Test that output has same number of rows as input."""
         for test_size in [1, 5, 100]:
-            test_df = pd.DataFrame({
-                "name": ["patel"] * test_size
-            })
+            test_df = pd.DataFrame({"name": ["patel"] * test_size})
 
             result = secc_caste(test_df, "name")
             self.assertEqual(len(result), test_size)
 
     def test_duplicate_names_handling(self) -> None:
         """Test handling of duplicate names in input."""
-        dup_df = pd.DataFrame({
-            "name": ["patel", "patel", "kohli", "kohli", "patel"]
-        })
+        dup_df = pd.DataFrame({"name": ["patel", "patel", "kohli", "kohli", "patel"]})
 
         result = secc_caste(dup_df, "name")
 
@@ -143,15 +149,14 @@ class TestDataValidation(unittest.TestCase):
             for col in ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]:
                 unique_vals = patel_rows[col].dropna().unique()
                 self.assertLessEqual(
-                    len(unique_vals), 1,
-                    f"Duplicate names should have identical values for {col}"
+                    len(unique_vals),
+                    1,
+                    f"Duplicate names should have identical values for {col}",
                 )
 
     def test_case_insensitive_consistency(self) -> None:
         """Test that case variations of same name produce consistent results."""
-        case_df = pd.DataFrame({
-            "name": ["patel", "PATEL", "Patel", "PaTeL"]
-        })
+        case_df = pd.DataFrame({"name": ["patel", "PATEL", "Patel", "PaTeL"]})
 
         result = secc_caste(case_df, "name")
 
@@ -160,15 +165,16 @@ class TestDataValidation(unittest.TestCase):
             for col in ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]:
                 unique_vals = result[col].dropna().unique()
                 self.assertLessEqual(
-                    len(unique_vals), 1,
-                    f"Case variations should produce identical values for {col}"
+                    len(unique_vals),
+                    1,
+                    f"Case variations should produce identical values for {col}",
                 )
 
     def test_whitespace_normalization(self) -> None:
         """Test that whitespace is properly normalized."""
-        whitespace_df = pd.DataFrame({
-            "name": ["patel", "  patel  ", "patel ", " patel", "\tpatel\n"]
-        })
+        whitespace_df = pd.DataFrame(
+            {"name": ["patel", "  patel  ", "patel ", " patel", "\tpatel\n"]}
+        )
 
         result = secc_caste(whitespace_df, "name")
 
@@ -177,8 +183,9 @@ class TestDataValidation(unittest.TestCase):
             for col in ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]:
                 unique_vals = result[col].dropna().unique()
                 self.assertLessEqual(
-                    len(unique_vals), 1,
-                    f"Whitespace variations should produce identical values for {col}"
+                    len(unique_vals),
+                    1,
+                    f"Whitespace variations should produce identical values for {col}",
                 )
 
     def test_numeric_precision(self) -> None:
@@ -194,8 +201,10 @@ class TestDataValidation(unittest.TestCase):
                 if total_counts > 0:
                     manual_prop_sc = row.n_sc / total_counts
                     self.assertAlmostEqual(
-                        row.prop_sc, manual_prop_sc, places=10,
-                        msg="Proportion calculation lacks sufficient precision"
+                        row.prop_sc,
+                        manual_prop_sc,
+                        places=10,
+                        msg="Proportion calculation lacks sufficient precision",
                     )
 
     def test_no_infinite_values(self) -> None:
@@ -205,8 +214,7 @@ class TestDataValidation(unittest.TestCase):
         numeric_cols = ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
         for col in numeric_cols:
             self.assertFalse(
-                np.isinf(result[col]).any(),
-                f"Found infinite values in column {col}"
+                np.isinf(result[col]).any(), f"Found infinite values in column {col}"
             )
 
     def test_output_column_order(self) -> None:
@@ -230,9 +238,7 @@ class TestDataValidation(unittest.TestCase):
 
     def test_empty_string_names(self) -> None:
         """Test handling of empty string names."""
-        empty_df = pd.DataFrame({
-            "name": ["", "  ", "\t", "\n", "patel"]
-        })
+        empty_df = pd.DataFrame({"name": ["", "  ", "\t", "\n", "patel"]})
 
         result = secc_caste(empty_df, "name")
 
@@ -256,7 +262,7 @@ class TestDataValidation(unittest.TestCase):
                 # Values should be reasonable (not astronomically large)
                 self.assertTrue(
                     (valid_values < 1e10).all(),
-                    f"Unexpectedly large values found in {col}"
+                    f"Unexpectedly large values found in {col}",
                 )
 
 
@@ -288,7 +294,15 @@ class TestStateYearSpecificValidation(unittest.TestCase):
     def _validate_basic_structure(self, result: pd.DataFrame) -> None:
         """Helper method to validate basic result structure."""
         # Check column presence
-        expected_cols = ["name", "n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
+        expected_cols = [
+            "name",
+            "n_sc",
+            "n_st",
+            "n_other",
+            "prop_sc",
+            "prop_st",
+            "prop_other",
+        ]
         for col in expected_cols:
             self.assertIn(col, result.columns)
 

@@ -128,7 +128,9 @@ class TestFindNgrams(unittest.TestCase):
         # vocab = ["ab", "bc", "cd", "de", "ef"]
         # "abxyz" with n=2 -> "ab", "bx", "xy", "yz"
         # "ab" is at index 0, others not found (return -1)
-        self.assertEqual(result, [0, -1, -1, -1])  # 'ab' found at index 0, others not found
+        self.assertEqual(
+            result, [0, -1, -1, -1]
+        )  # 'ab' found at index 0, others not found
 
     def test_find_ngrams_no_matches(self) -> None:
         """Test find_ngrams with no vocabulary matches."""

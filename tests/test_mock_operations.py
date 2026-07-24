@@ -24,14 +24,16 @@ class TestMockedFileOperations(unittest.TestCase):
         self.sample_df = pd.DataFrame({"name": ["patel", "kohli"]})
 
         # Sample SECC data for mocking
-        self.mock_secc_data = pd.DataFrame({
-            "state": ["kerala", "kerala", "bihar", "bihar"],
-            "birth_year": [1980, 1985, 1980, 1985],
-            "last_name": ["patel", "patel", "kohli", "kohli"],
-            "n_sc": [10, 15, 5, 8],
-            "n_st": [2, 3, 1, 2],
-            "n_other": [88, 82, 94, 90]
-        })
+        self.mock_secc_data = pd.DataFrame(
+            {
+                "state": ["kerala", "kerala", "bihar", "bihar"],
+                "birth_year": [1980, 1985, 1980, 1985],
+                "last_name": ["patel", "patel", "kohli", "kohli"],
+                "n_sc": [10, 15, 5, 8],
+                "n_st": [2, 3, 1, 2],
+                "n_other": [88, 82, 94, 90],
+            }
+        )
 
     def test_secc_caste_with_mocked_data_file(self) -> None:
         """Test secc_caste with completely mocked data file."""
@@ -45,7 +47,15 @@ class TestMockedFileOperations(unittest.TestCase):
 
             # Check that result has expected structure
             self.assertEqual(len(result), len(self.sample_df))
-            expected_cols = ["name", "prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
+            expected_cols = [
+                "name",
+                "prop_sc",
+                "prop_st",
+                "prop_other",
+                "n_sc",
+                "n_st",
+                "n_other",
+            ]
             for col in expected_cols:
                 self.assertIn(col, result.columns)
 
@@ -54,9 +64,10 @@ class TestMockedFileOperations(unittest.TestCase):
         mock_path = Mock()
         mock_path.exists.return_value = True
 
-        with patch("outkast.secc_caste_ln.get_secc_data_path") as mock_get_path, \
-             patch("outkast.secc_caste_ln.pd.read_csv") as mock_read_csv:
-
+        with (
+            patch("outkast.secc_caste_ln.get_secc_data_path") as mock_get_path,
+            patch("outkast.secc_caste_ln.pd.read_csv") as mock_read_csv,
+        ):
             mock_get_path.return_value = mock_path
             mock_read_csv.return_value = self.mock_secc_data.copy()
 
@@ -66,7 +77,7 @@ class TestMockedFileOperations(unittest.TestCase):
             mock_get_path.assert_called_once()
             mock_read_csv.assert_called_once_with(
                 mock_path,
-                usecols=["state", "birth_year", "last_name", "n_sc", "n_st", "n_other"]
+                usecols=["state", "birth_year", "last_name", "n_sc", "n_st", "n_other"],
             )
 
             # Check result integrity
@@ -110,9 +121,10 @@ class TestMockedFileOperations(unittest.TestCase):
         mock_context.__enter__.return_value = mock_data_file
         mock_context.__exit__.return_value = False
 
-        with patch("outkast.secc_caste_ln.resources.as_file") as mock_as_file, \
-             patch("outkast.secc_caste_ln.resources.files") as mock_files:
-
+        with (
+            patch("outkast.secc_caste_ln.resources.as_file") as mock_as_file,
+            patch("outkast.secc_caste_ln.resources.files") as mock_files,
+        ):
             mock_files.return_value.__truediv__.return_value.__truediv__.return_value.__truediv__.return_value = "mock_resource"
             mock_as_file.return_value = mock_context
 
@@ -126,9 +138,9 @@ class TestMockedFileOperations(unittest.TestCase):
 
     def test_list_states_with_mocked_data(self) -> None:
         """Test list_states function with mocked data."""
-        mock_states_data = pd.DataFrame({
-            "state": ["kerala", "bihar", "uttar pradesh", "kerala", "bihar"]
-        })
+        mock_states_data = pd.DataFrame(
+            {"state": ["kerala", "bihar", "uttar pradesh", "kerala", "bihar"]}
+        )
 
         with patch("outkast.secc_caste_ln.pd.read_csv") as mock_read_csv:
             mock_read_csv.return_value = mock_states_data
@@ -149,14 +161,16 @@ class TestMockedFileOperations(unittest.TestCase):
     def test_secc_caste_aggregation_logic_mocked(self) -> None:
         """Test data aggregation logic with controlled mock data."""
         # Create specific test data for aggregation testing
-        test_aggregation_data = pd.DataFrame({
-            "state": ["kerala", "kerala", "kerala"],
-            "birth_year": [1980, 1980, 1985],
-            "last_name": ["patel", "patel", "patel"],
-            "n_sc": [10, 20, 15],
-            "n_st": [5, 5, 3],
-            "n_other": [85, 75, 82]
-        })
+        test_aggregation_data = pd.DataFrame(
+            {
+                "state": ["kerala", "kerala", "kerala"],
+                "birth_year": [1980, 1980, 1985],
+                "last_name": ["patel", "patel", "patel"],
+                "n_sc": [10, 20, 15],
+                "n_st": [5, 5, 3],
+                "n_other": [85, 75, 82],
+            }
+        )
 
         with patch("outkast.secc_caste_ln.pd.read_csv") as mock_read_csv:
             mock_read_csv.return_value = test_aggregation_data
@@ -167,7 +181,7 @@ class TestMockedFileOperations(unittest.TestCase):
             # For "patel", should aggregate all kerala data
             patel_row = result[result.name == "patel"].iloc[0]
             expected_n_sc = 10 + 20 + 15  # 45
-            expected_n_total = (10+5+85) + (20+5+75) + (15+3+82)  # 300
+            expected_n_total = (10 + 5 + 85) + (20 + 5 + 75) + (15 + 3 + 82)  # 300
             expected_prop_sc = expected_n_sc / expected_n_total
 
             self.assertAlmostEqual(patel_row.n_sc, expected_n_sc)
@@ -192,7 +206,9 @@ class TestMockedFileOperations(unittest.TestCase):
             secc_caste(self.sample_df, "name")
 
             # Original mock data should not be modified
-            pd.testing.assert_frame_equal(mock_read_csv.return_value, self.mock_secc_data)
+            pd.testing.assert_frame_equal(
+                mock_read_csv.return_value, self.mock_secc_data
+            )
 
             # Result should have expected columns without modifying input
             # Check that input DataFrame wasn't modified

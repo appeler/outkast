@@ -79,7 +79,14 @@ class TestSeccCasteLnFunction(unittest.TestCase):
                 odf = secc_caste(self.df, "name", state, year)
 
                 # Basic structure tests
-                expected_cols = ["prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
+                expected_cols = [
+                    "prop_sc",
+                    "prop_st",
+                    "prop_other",
+                    "n_sc",
+                    "n_st",
+                    "n_other",
+                ]
                 for col in expected_cols:
                     self.assertIn(col, odf.columns)
 
@@ -112,9 +119,9 @@ class TestSeccCasteLnFunction(unittest.TestCase):
 
     def test_secc_caste_whitespace_names(self) -> None:
         """Test that whitespace is properly handled."""
-        df_with_spaces = pd.DataFrame({
-            "name": ["  patel  ", " kohli", "lal ", "  agarwal  "]
-        })
+        df_with_spaces = pd.DataFrame(
+            {"name": ["  patel  ", " kohli", "lal ", "  agarwal  "]}
+        )
 
         odf = secc_caste(df_with_spaces, "name")
 
@@ -126,9 +133,7 @@ class TestSeccCasteLnFunction(unittest.TestCase):
 
     def test_secc_caste_case_insensitive(self) -> None:
         """Test that name matching is case insensitive."""
-        df_mixed_case = pd.DataFrame({
-            "name": ["PATEL", "Kohli", "lal", "AGARWAL"]
-        })
+        df_mixed_case = pd.DataFrame({"name": ["PATEL", "Kohli", "lal", "AGARWAL"]})
 
         odf = secc_caste(df_mixed_case, "name")
 

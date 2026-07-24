@@ -108,9 +108,7 @@ class TestFixtureIntegration(unittest.TestCase):
 
     def setUp(self) -> None:
         # Manual setup for unittest style
-        self.sample_df = pd.DataFrame({
-            "name": ["patel", "kohli", "sharma"]
-        })
+        self.sample_df = pd.DataFrame({"name": ["patel", "kohli", "sharma"]})
 
     def test_sample_data_consistency(self) -> None:
         """Test that fixture data is consistent with expectations."""
@@ -191,10 +189,7 @@ class TestIntegrationWithFixtures:
     """Integration tests using multiple fixtures."""
 
     def test_end_to_end_with_fixtures(
-        self,
-        temp_csv_file,
-        expected_secc_columns,
-        cleanup_output_files
+        self, temp_csv_file, expected_secc_columns, cleanup_output_files
     ):
         """Test end-to-end workflow using fixtures."""
         from outkast.secc_caste_ln import main
@@ -204,11 +199,7 @@ class TestIntegrationWithFixtures:
         cleanup_output_files(output_file)
 
         # Run CLI command
-        args = [
-            str(temp_csv_file),
-            "--last-name", "name",
-            "--output", output_file
-        ]
+        args = [str(temp_csv_file), "--last-name", "name", "--output", output_file]
 
         result_code = main(args)
         assert result_code == 0

@@ -78,9 +78,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_dataframe_with_nan_names(self) -> None:
         """Test DataFrame with NaN values in name column."""
-        df_with_nan = pd.DataFrame({
-            "name": ["patel", None, "kohli", pd.NA, ""]
-        })
+        df_with_nan = pd.DataFrame({"name": ["patel", None, "kohli", pd.NA, ""]})
 
         # Should handle gracefully without crashing
         result = secc_caste(df_with_nan, "name")
@@ -88,25 +86,29 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_numeric_name_column(self) -> None:
         """Test with numeric values in name column."""
-        df_numeric = pd.DataFrame({
-            "name": [123, 456, 789]
-        })
+        df_numeric = pd.DataFrame({"name": [123, 456, 789]})
 
         # Should convert to string and process without errors
         result = secc_caste(df_numeric, "name")
         self.assertEqual(len(result), len(df_numeric))
 
         # Should have expected columns
-        expected_cols = ["name", "n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
+        expected_cols = [
+            "name",
+            "n_sc",
+            "n_st",
+            "n_other",
+            "prop_sc",
+            "prop_st",
+            "prop_other",
+        ]
         for col in expected_cols:
             self.assertIn(col, result.columns)
 
     def test_very_large_dataframe_memory(self) -> None:
         """Test with large DataFrame to check memory handling."""
         # Create a large DataFrame
-        large_df = pd.DataFrame({
-            "name": ["patel"] * 10000 + ["kohli"] * 10000
-        })
+        large_df = pd.DataFrame({"name": ["patel"] * 10000 + ["kohli"] * 10000})
 
         # Should handle large data without memory issues
         result = secc_caste(large_df, "name")
@@ -114,9 +116,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_unicode_names(self) -> None:
         """Test with Unicode characters in names."""
-        df_unicode = pd.DataFrame({
-            "name": ["पटेल", "कोहली", "राम", "श्याम"]
-        })
+        df_unicode = pd.DataFrame({"name": ["पटेल", "कोहली", "राम", "श्याम"]})
 
         # Should process without crashing
         result = secc_caste(df_unicode, "name")
@@ -124,9 +124,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_special_characters_in_names(self) -> None:
         """Test with special characters in names."""
-        df_special = pd.DataFrame({
-            "name": ["o'brien", "d'souza", "jean-luc", "josé"]
-        })
+        df_special = pd.DataFrame({"name": ["o'brien", "d'souza", "jean-luc", "josé"]})
 
         # Should process without crashing
         result = secc_caste(df_special, "name")
@@ -134,9 +132,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def test_extremely_long_names(self) -> None:
         """Test with extremely long name strings."""
-        df_long = pd.DataFrame({
-            "name": ["a" * 1000, "b" * 5000, "patel"]
-        })
+        df_long = pd.DataFrame({"name": ["a" * 1000, "b" * 5000, "patel"]})
 
         # Should process without memory issues
         result = secc_caste(df_long, "name")
@@ -159,7 +155,9 @@ class TestDataPathErrors(unittest.TestCase):
             mock_files.return_value = mock_package
 
             # Mock the path traversal to raise an error
-            mock_package.__truediv__ = Mock(side_effect=FileNotFoundError("Data directory not found"))
+            mock_package.__truediv__ = Mock(
+                side_effect=FileNotFoundError("Data directory not found")
+            )
 
             with self.assertRaises(FileNotFoundError):
                 get_secc_data_path()
@@ -196,14 +194,16 @@ class TestClassVariableCaching(unittest.TestCase):
         # Change to different state should reload data
         with patch("outkast.secc_caste_ln.pd.read_csv") as mock_read:
             # Mock the return value
-            mock_read.return_value = pd.DataFrame({
-                "state": ["bihar"],
-                "birth_year": [1985],
-                "last_name": ["patel"],
-                "n_sc": [10],
-                "n_st": [5],
-                "n_other": [85]
-            })
+            mock_read.return_value = pd.DataFrame(
+                {
+                    "state": ["bihar"],
+                    "birth_year": [1985],
+                    "last_name": ["patel"],
+                    "n_sc": [10],
+                    "n_st": [5],
+                    "n_other": [85],
+                }
+            )
 
             secc_caste(self.df, "name", "bihar", 1985)
 
@@ -218,14 +218,16 @@ class TestClassVariableCaching(unittest.TestCase):
         # Change to different year should reload data
         with patch("outkast.secc_caste_ln.pd.read_csv") as mock_read:
             # Mock the return value
-            mock_read.return_value = pd.DataFrame({
-                "state": ["kerala"],
-                "birth_year": [1990],
-                "last_name": ["patel"],
-                "n_sc": [15],
-                "n_st": [8],
-                "n_other": [77]
-            })
+            mock_read.return_value = pd.DataFrame(
+                {
+                    "state": ["kerala"],
+                    "birth_year": [1990],
+                    "last_name": ["patel"],
+                    "n_sc": [15],
+                    "n_st": [8],
+                    "n_other": [77],
+                }
+            )
 
             secc_caste(self.df, "name", "kerala", 1990)
 
