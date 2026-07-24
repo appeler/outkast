@@ -1,3 +1,5 @@
+"""Infer caste from Indian last names using SECC data."""
+
 from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version

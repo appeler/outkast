@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Append SECC caste-proportion columns to a DataFrame by last name."""
 
 from __future__ import annotations
 
@@ -42,6 +43,8 @@ SECC_COLS = ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
 
 @dataclass(slots=True)
 class SeccCasteLnData:
+    """Lookup table mapping last names to SECC caste proportions."""
+
     __df: ClassVar[pd.DataFrame | None] = None
     __state: ClassVar[str | None] = None
     __year: ClassVar[int | None] = None
@@ -54,29 +57,27 @@ class SeccCasteLnData:
         state: str | None = None,
         year: int | None = None,
     ) -> pd.DataFrame:
-        """Appends additional columns from SECC data to the input DataFrame
-        based on the last name.
+        """Append additional columns from SECC data to the input DataFrame.
 
         Removes extra space. Checks if the name is the SECC data.
         If it is, outputs data from that row.
 
         Args:
-            df (:obj:`DataFrame`): Pandas DataFrame containing the last name
-                column.
-            namecol (str or int): Column's name or location of the name in
-                DataFrame.
-            state (str): The state name of SECC data to be used.
+            df: Pandas DataFrame containing the last name column.
+            namecol: Column's name or location of the name in the DataFrame.
+            state: The state name of SECC data to be used.
                 (default is None for all states)
-            year (int): The year of SECC data to be used.
+            year: The year of SECC data to be used.
                 (default is None for all years)
 
         Returns:
-            DataFrame: Pandas DataFrame with additional columns:-
+            Pandas DataFrame with additional columns:-
                 'n_sc', 'n_st', 'n_other',
                 'prop_sc', 'prop_st', 'prop_other' by last name
 
+        Raises:
+            RuntimeError: If the SECC lookup table fails to load.
         """
-
         if namecol not in df.columns:
             logger.error(f"No column `{namecol}` in the DataFrame")
             return df
@@ -90,9 +91,18 @@ class SeccCasteLnData:
 
         if cls.__df is None or cls.__state != state or cls.__year != year:
             secc_data_path = get_secc_data_path()
-            adf = pd.read_csv(
+            # list[str] triggers a pandas typing false positive on usecols'
+            # SequenceNotStr protocol: https://github.com/pandas-dev/pandas/issues/59530
+            adf = pd.read_csv(  # pyright: ignore[reportCallIssue]
                 secc_data_path,
-                usecols=["state", "birth_year", "last_name", "n_sc", "n_st", "n_other"],
+                usecols=[  # pyright: ignore[reportArgumentType]
+                    "state",
+                    "birth_year",
+                    "last_name",
+                    "n_sc",
+                    "n_st",
+                    "n_other",
+                ],
             )
             agg_dict = {"n_sc": "sum", "n_st": "sum", "n_other": "sum"}
             match (state, year):
@@ -119,12 +129,15 @@ class SeccCasteLnData:
             adf["prop_sc"] = adf["n_sc"] / n
             adf["prop_st"] = adf["n_st"] / n
             adf["prop_other"] = adf["n_other"] / n
-            cls.__df = adf
-            cls.__df = cls.__df[["last_name"] + SECC_COLS]
-            cls.__df.rename(columns={"last_name": "__last_name"}, inplace=True)
+            lookup = adf[["last_name", *SECC_COLS]].rename(
+                columns={"last_name": "__last_name"}
+            )
+            cls.__df = lookup
             cls.__state = state
             cls.__year = year
 
+        if cls.__df is None:
+            raise RuntimeError("SECC lookup table failed to load")
         rdf = pd.merge(df_copy, cls.__df, how="left", on="__last_name")
         rdf = rdf.drop(columns=["__last_name"])
 
@@ -132,8 +145,13 @@ class SeccCasteLnData:
 
     @staticmethod
     def list_states() -> list[str]:
+        """Return the list of states present in the SECC data."""
         secc_data_path = get_secc_data_path()
-        adf = pd.read_csv(secc_data_path, usecols=["state"])
+        # See the usecols note in secc_caste above re: pandas issue #59530.
+        adf = pd.read_csv(  # pyright: ignore[reportCallIssue]
+            secc_data_path,
+            usecols=["state"],  # pyright: ignore[reportArgumentType]
+        )
         return list(adf.state.unique())
 
 
@@ -141,6 +159,7 @@ secc_caste = SeccCasteLnData.secc_caste
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the secc_caste command-line interface."""
     if argv is None:
         argv = sys.argv[1:]
 
@@ -193,7 +212,7 @@ def main(argv: list[str] | None = None) -> int:
     rdf = secc_caste(df, args.last_name, args.state, args.year)
 
     logger.info(f"Saving output to file: `{args.output}`")
-    rdf.columns = fixup_columns(rdf.columns)
+    rdf.columns = fixup_columns(list(rdf.columns))
     rdf.to_csv(args.output, index=False)
 
     return 0

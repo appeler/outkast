@@ -8,6 +8,7 @@ version = "1.0.1"
 description = "Infer Caste from Indian Names"
 readme = "README.rst"
 license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     {name = "Gaurav Sood", email = "gsood07@gmail.com"},
     {name = "Suriyan Laohaprapanon", email = "suriyant@gmail.com"},
@@ -68,6 +69,7 @@ docs = [
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+extend-exclude = ["data"]
 
 [tool.ruff.lint]
 external = ["DOC"]

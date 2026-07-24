@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd
+import pytest
 
 from outkast.secc_caste_ln import SeccCasteLnData, get_secc_data_path, secc_caste
 
@@ -46,7 +47,7 @@ class TestMockedFileOperations(unittest.TestCase):
             mock_read_csv.assert_called_once()
 
             # Check that result has expected structure
-            self.assertEqual(len(result), len(self.sample_df))
+            assert len(result) == len(self.sample_df)
             expected_cols = [
                 "name",
                 "prop_sc",
@@ -57,7 +58,7 @@ class TestMockedFileOperations(unittest.TestCase):
                 "n_other",
             ]
             for col in expected_cols:
-                self.assertIn(col, result.columns)
+                assert col in result.columns
 
     def test_secc_caste_with_mocked_path_and_data(self) -> None:
         """Test secc_caste with both path and data mocked."""
@@ -81,7 +82,7 @@ class TestMockedFileOperations(unittest.TestCase):
             )
 
             # Check result integrity
-            self.assertEqual(len(result), len(self.sample_df))
+            assert len(result) == len(self.sample_df)
 
     def test_multiple_calls_cache_behavior_mocked(self) -> None:
         """Test caching behavior with mocked file operations."""
@@ -95,7 +96,7 @@ class TestMockedFileOperations(unittest.TestCase):
             result2 = secc_caste(self.sample_df, "name", "kerala", 1985)
 
             # Should only call read_csv once due to caching
-            self.assertEqual(mock_read_csv.call_count, 1)
+            assert mock_read_csv.call_count == 1
 
             # Results should be identical
             pd.testing.assert_frame_equal(result1, result2)
@@ -112,7 +113,7 @@ class TestMockedFileOperations(unittest.TestCase):
             secc_caste(self.sample_df, "name", "bihar", 1985)
 
             # Should call read_csv twice due to cache invalidation
-            self.assertEqual(mock_read_csv.call_count, 2)
+            assert mock_read_csv.call_count == 2
 
     def test_get_secc_data_path_mocked(self) -> None:
         """Test get_secc_data_path function with mocked resources."""
@@ -131,7 +132,7 @@ class TestMockedFileOperations(unittest.TestCase):
             result = get_secc_data_path()
 
             # Should return the mocked data file
-            self.assertEqual(result, mock_data_file)
+            assert result == mock_data_file
 
             # Verify the resource path construction
             mock_files.assert_called_once_with("outkast")
@@ -148,15 +149,15 @@ class TestMockedFileOperations(unittest.TestCase):
             states = SeccCasteLnData.list_states()
 
             # Should return unique states
-            self.assertIsInstance(states, list)
+            assert isinstance(states, list)
             expected_states = ["kerala", "bihar", "uttar pradesh"]
-            self.assertEqual(set(states), set(expected_states))
+            assert set(states) == set(expected_states)
 
             # Verify read_csv was called with correct parameters
             mock_read_csv.assert_called_once()
             call_args = mock_read_csv.call_args
-            self.assertIn("usecols", call_args.kwargs)
-            self.assertEqual(call_args.kwargs["usecols"], ["state"])
+            assert "usecols" in call_args.kwargs
+            assert call_args.kwargs["usecols"] == ["state"]
 
     def test_secc_caste_aggregation_logic_mocked(self) -> None:
         """Test data aggregation logic with controlled mock data."""
@@ -184,15 +185,15 @@ class TestMockedFileOperations(unittest.TestCase):
             expected_n_total = (10 + 5 + 85) + (20 + 5 + 75) + (15 + 3 + 82)  # 300
             expected_prop_sc = expected_n_sc / expected_n_total
 
-            self.assertAlmostEqual(patel_row.n_sc, expected_n_sc)
-            self.assertAlmostEqual(patel_row.prop_sc, expected_prop_sc, places=10)
+            assert patel_row.n_sc == pytest.approx(expected_n_sc)
+            assert patel_row.prop_sc == pytest.approx(expected_prop_sc, abs=1e-10)
 
     def test_error_handling_with_mocked_exceptions(self) -> None:
         """Test error handling when mocked operations raise exceptions."""
         with patch("outkast.secc_caste_ln.get_secc_data_path") as mock_path:
             mock_path.side_effect = FileNotFoundError("Mock file not found")
 
-            with self.assertRaises(FileNotFoundError):
+            with pytest.raises(FileNotFoundError):
                 secc_caste(self.sample_df, "name")
 
     def test_pandas_operations_isolation(self) -> None:
@@ -212,7 +213,7 @@ class TestMockedFileOperations(unittest.TestCase):
 
             # Result should have expected columns without modifying input
             # Check that input DataFrame wasn't modified
-            self.assertNotIn("__last_name", self.sample_df.columns)
+            assert "__last_name" not in self.sample_df.columns
 
     def test_memory_efficiency_with_large_mocked_data(self) -> None:
         """Test memory efficiency with large mocked datasets."""
@@ -226,10 +227,10 @@ class TestMockedFileOperations(unittest.TestCase):
             result = secc_caste(self.sample_df, "name")
 
             # Result size should still match input
-            self.assertEqual(len(result), len(self.sample_df))
+            assert len(result) == len(self.sample_df)
 
             # Memory should be manageable (no specific assertion, just shouldn't crash)
-            self.assertIsNotNone(result)
+            assert result is not None
 
 
 if __name__ == "__main__":

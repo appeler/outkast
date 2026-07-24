@@ -1,3 +1,5 @@
+"""Small DataFrame column-handling helpers."""
+
 from __future__ import annotations
 
 import logging
@@ -30,7 +32,7 @@ def column_exists(df: pd.DataFrame, col: str | int) -> bool:
 
 
 def fixup_columns(cols: Sequence[str | int]) -> list[str]:
-    """Replace index location column to name with `col` prefix
+    """Replace index location column to name with `col` prefix.
 
     Args:
         cols: List of original columns

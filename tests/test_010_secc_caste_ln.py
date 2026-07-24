@@ -12,6 +12,7 @@ from io import StringIO
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 
 from outkast import secc_caste
 from outkast.secc_caste_ln import SeccCasteLnData
@@ -37,11 +38,11 @@ class TestSeccCasteLnFunction(unittest.TestCase):
         # Check all expected columns are present
         expected_cols = ["prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
         for col in expected_cols:
-            self.assertIn(col, odf.columns)
+            assert col in odf.columns
 
         # Check data integrity
-        self.assertEqual(len(odf), len(self.df))
-        self.assertTrue(odf.iloc[2].prop_sc > 0.3)
+        assert len(odf) == len(self.df)
+        assert odf.iloc[2].prop_sc > 0.3
 
     def test_secc_caste_ln_state_specific(self) -> None:
         """Test with specific state filtering."""
@@ -49,10 +50,10 @@ class TestSeccCasteLnFunction(unittest.TestCase):
 
         expected_cols = ["prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
         for col in expected_cols:
-            self.assertIn(col, odf.columns)
+            assert col in odf.columns
 
-        self.assertEqual(len(odf), len(self.df))
-        self.assertTrue(odf.iloc[2].prop_sc > 0.1)
+        assert len(odf) == len(self.df)
+        assert odf.iloc[2].prop_sc > 0.1
 
     def test_secc_caste_ln_state_year_specific(self) -> None:
         """Test with both state and year filtering."""
@@ -60,10 +61,10 @@ class TestSeccCasteLnFunction(unittest.TestCase):
 
         expected_cols = ["prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
         for col in expected_cols:
-            self.assertIn(col, odf.columns)
+            assert col in odf.columns
 
-        self.assertEqual(len(odf), len(self.df))
-        self.assertTrue(odf.iloc[2].prop_sc > 0.1)
+        assert len(odf) == len(self.df)
+        assert odf.iloc[2].prop_sc > 0.1
 
     def test_secc_caste_multiple_state_year_combinations(self) -> None:
         """Test different combinations of state and year parameters."""
@@ -88,16 +89,16 @@ class TestSeccCasteLnFunction(unittest.TestCase):
                     "n_other",
                 ]
                 for col in expected_cols:
-                    self.assertIn(col, odf.columns)
+                    assert col in odf.columns
 
-                self.assertEqual(len(odf), len(self.df))
+                assert len(odf) == len(self.df)
 
                 # Check proportions sum to 1 (or NaN for missing data)
                 for idx in range(len(odf)):
                     row = odf.iloc[idx]
                     if not pd.isna(row.prop_sc):
                         total_prop = row.prop_sc + row.prop_st + row.prop_other
-                        self.assertAlmostEqual(total_prop, 1.0, places=10)
+                        assert total_prop == pytest.approx(1.0, abs=1e-10)
 
     def test_secc_caste_invalid_column(self) -> None:
         """Test behavior with invalid column name."""
@@ -126,10 +127,10 @@ class TestSeccCasteLnFunction(unittest.TestCase):
         odf = secc_caste(df_with_spaces, "name")
 
         # Should process without errors
-        self.assertEqual(len(odf), len(df_with_spaces))
+        assert len(odf) == len(df_with_spaces)
         expected_cols = ["prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
         for col in expected_cols:
-            self.assertIn(col, odf.columns)
+            assert col in odf.columns
 
     def test_secc_caste_case_insensitive(self) -> None:
         """Test that name matching is case insensitive."""
@@ -138,10 +139,10 @@ class TestSeccCasteLnFunction(unittest.TestCase):
         odf = secc_caste(df_mixed_case, "name")
 
         # Should process without errors
-        self.assertEqual(len(odf), len(df_mixed_case))
+        assert len(odf) == len(df_mixed_case)
         expected_cols = ["prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
         for col in expected_cols:
-            self.assertIn(col, odf.columns)
+            assert col in odf.columns
 
     def test_secc_caste_data_types(self) -> None:
         """Test that output data types are correct."""
@@ -150,27 +151,27 @@ class TestSeccCasteLnFunction(unittest.TestCase):
         # Check that numeric columns are numeric
         numeric_cols = ["prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
         for col in numeric_cols:
-            self.assertTrue(pd.api.types.is_numeric_dtype(odf[col]))
+            assert pd.api.types.is_numeric_dtype(odf[col])
 
     def test_secc_caste_no_temp_columns(self) -> None:
         """Test that temporary columns are cleaned up."""
         odf = secc_caste(self.df, "name")
 
         # Should not contain temporary __last_name column
-        self.assertNotIn("__last_name", odf.columns)
+        assert "__last_name" not in odf.columns
 
     def test_list_states_function(self) -> None:
         """Test that list_states returns valid state names."""
         states = SeccCasteLnData.list_states()
 
         # Should return a non-empty list
-        self.assertIsInstance(states, list)
-        self.assertGreater(len(states), 0)
+        assert isinstance(states, list)
+        assert len(states) > 0
 
         # Should contain some expected states
         expected_states = ["kerala", "uttar pradesh", "bihar"]
         for state in expected_states:
-            self.assertIn(state, states)
+            assert state in states
 
 
 if __name__ == "__main__":

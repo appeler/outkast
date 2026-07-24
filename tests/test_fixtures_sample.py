@@ -115,12 +115,12 @@ class TestFixtureIntegration(unittest.TestCase):
         result = secc_caste(self.sample_df, "name")
 
         # Check basic structure
-        self.assertEqual(len(result), len(self.sample_df))
+        assert len(result) == len(self.sample_df)
 
         # Check expected columns exist
         expected_cols = ["n_sc", "n_st", "n_other", "prop_sc", "prop_st", "prop_other"]
         for col in expected_cols:
-            self.assertIn(col, result.columns)
+            assert col in result.columns
 
     def test_temporary_file_creation(self) -> None:
         """Test temporary file operations."""
@@ -133,11 +133,11 @@ class TestFixtureIntegration(unittest.TestCase):
 
         try:
             # Use the temp file
-            self.assertTrue(temp_path.exists())
+            assert temp_path.exists()
 
             df = pd.read_csv(temp_path)
             result = secc_caste(df, "name")
-            self.assertEqual(len(result), len(df))
+            assert len(result) == len(df)
 
         finally:
             # Clean up

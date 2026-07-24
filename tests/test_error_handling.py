@@ -13,6 +13,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pandas as pd
+import pytest
 
 from outkast import secc_caste
 from outkast.secc_caste_ln import SeccCasteLnData, get_secc_data_path
@@ -27,7 +28,7 @@ class TestErrorHandling(unittest.TestCase):
         with patch("outkast.secc_caste_ln.get_secc_data_path") as mock_path:
             mock_path.return_value = Path("/nonexistent/file.csv")
 
-            with self.assertRaises(FileNotFoundError):
+            with pytest.raises(FileNotFoundError):
                 secc_caste(self.df, "name")
 
     def test_corrupted_data_file(self) -> None:
@@ -41,7 +42,7 @@ class TestErrorHandling(unittest.TestCase):
                 mock_path.return_value = temp_path
 
                 # Should raise an exception due to missing required columns
-                with self.assertRaises((KeyError, ValueError)):
+                with pytest.raises((KeyError, ValueError)):
                     secc_caste(self.df, "name")
         finally:
             temp_path.unlink(missing_ok=True)
@@ -52,12 +53,12 @@ class TestErrorHandling(unittest.TestCase):
         result = secc_caste(self.df, "name", "nonexistent_state")
 
         # Should complete without error
-        self.assertEqual(len(result), len(self.df))
+        assert len(result) == len(self.df)
 
         # All caste columns should be NaN since no data matches
         caste_cols = ["prop_sc", "prop_st", "prop_other", "n_sc", "n_st", "n_other"]
         for col in caste_cols:
-            self.assertIn(col, result.columns)
+            assert col in result.columns
 
     def test_invalid_year_parameter(self) -> None:
         """Test with invalid year parameter."""
@@ -65,7 +66,7 @@ class TestErrorHandling(unittest.TestCase):
         result = secc_caste(self.df, "name", None, 2050)
 
         # Should complete without error
-        self.assertEqual(len(result), len(self.df))
+        assert len(result) == len(self.df)
 
     def test_malformed_dataframe_no_columns(self) -> None:
         """Test with DataFrame that has no columns."""
@@ -82,7 +83,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Should handle gracefully without crashing
         result = secc_caste(df_with_nan, "name")
-        self.assertEqual(len(result), len(df_with_nan))
+        assert len(result) == len(df_with_nan)
 
     def test_numeric_name_column(self) -> None:
         """Test with numeric values in name column."""
@@ -90,7 +91,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Should convert to string and process without errors
         result = secc_caste(df_numeric, "name")
-        self.assertEqual(len(result), len(df_numeric))
+        assert len(result) == len(df_numeric)
 
         # Should have expected columns
         expected_cols = [
@@ -103,7 +104,7 @@ class TestErrorHandling(unittest.TestCase):
             "prop_other",
         ]
         for col in expected_cols:
-            self.assertIn(col, result.columns)
+            assert col in result.columns
 
     def test_very_large_dataframe_memory(self) -> None:
         """Test with large DataFrame to check memory handling."""
@@ -112,7 +113,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Should handle large data without memory issues
         result = secc_caste(large_df, "name")
-        self.assertEqual(len(result), len(large_df))
+        assert len(result) == len(large_df)
 
     def test_unicode_names(self) -> None:
         """Test with Unicode characters in names."""
@@ -120,7 +121,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Should process without crashing
         result = secc_caste(df_unicode, "name")
-        self.assertEqual(len(result), len(df_unicode))
+        assert len(result) == len(df_unicode)
 
     def test_special_characters_in_names(self) -> None:
         """Test with special characters in names."""
@@ -128,7 +129,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Should process without crashing
         result = secc_caste(df_special, "name")
-        self.assertEqual(len(result), len(df_special))
+        assert len(result) == len(df_special)
 
     def test_extremely_long_names(self) -> None:
         """Test with extremely long name strings."""
@@ -136,7 +137,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Should process without memory issues
         result = secc_caste(df_long, "name")
-        self.assertEqual(len(result), len(df_long))
+        assert len(result) == len(df_long)
 
 
 class TestDataPathErrors(unittest.TestCase):
@@ -145,7 +146,7 @@ class TestDataPathErrors(unittest.TestCase):
         with patch("outkast.secc_caste_ln.resources.files") as mock_files:
             mock_files.side_effect = ImportError("Package not found")
 
-            with self.assertRaises(ImportError):
+            with pytest.raises(ImportError):
                 get_secc_data_path()
 
     def test_get_secc_data_path_missing_data_dir(self) -> None:
@@ -159,7 +160,7 @@ class TestDataPathErrors(unittest.TestCase):
                 side_effect=FileNotFoundError("Data directory not found")
             )
 
-            with self.assertRaises(FileNotFoundError):
+            with pytest.raises(FileNotFoundError):
                 get_secc_data_path()
 
 
