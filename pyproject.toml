@@ -42,8 +42,19 @@ secc_caste = "outkast.secc_caste_ln:main"
 module-name = "outkast"
 module-root = ""
 
+[tool.pyright]
+include = ["outkast"]
+typeCheckingMode = "standard"
+
+[tool.pydoclint]
+style = "google"
+arg-type-hints-in-docstring = false
+check-return-types = false
+check-class-attributes = false
+allow-init-docstring = true
+exclude = '\.venv|tests|docs'
 [dependency-groups]
-dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.7.0", "mypy>=1.0", "pre-commit>=3.0"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.7.0", "pre-commit>=3.0", "pyright>=1.1.390", "pydoclint>=0.5"]
 test = ["pytest>=7.0", "pytest-cov>=4.0"]
 docs = [
     "sphinx>=7.0",
@@ -51,33 +62,24 @@ docs = [
     "sphinx-autodoc-typehints>=1.25",
     "sphinx-copybutton>=0.5",
     "myst-parser>=2.0",
+    "py-canon @ git+https://github.com/gojiplus/py-canon@v1",
 ]
 
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".venv",
-    "*.ipynb",
-]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["E501", "B008"]
+external = ["DOC"]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "N", "D", "S", "SIM", "T20", "PT", "RUF"]
+ignore = ["D203", "D213", "B008", "E501"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/*" = ["S101"]
-
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-check_untyped_defs = true
+"tests/**" = ["S101", "D"]
+"docs/**" = ["D"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
