@@ -52,6 +52,7 @@ API Reference
     :members:
     :undoc-members:
     :show-inheritance:
+    :exclude-members: secc_caste
 
 Main Functions
 ~~~~~~~~~~~~~~
