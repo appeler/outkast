@@ -11,7 +11,24 @@ time, and inventing one here would be worse than saying so.
 
 ## [Unreleased]
 
-Version 1.0.1 is declared in `pyproject.toml` and has not been published.
+### Changed
+
+- Replace `secc_caste` with the breaking
+  `lookup_secc_caste_composition` aggregate lookup API.
+- Return explicit match status, abstention reasons, and total support while
+  preserving input row count, order, and index.
+- Reject invalid columns, duplicate labels, invalid context types, and output
+  column collisions.
+- Replace the full-resolution runtime CSV with a typed Parquet table that
+  excludes every contextual cell with support below 100.
+- Release only state, birth year, and surname cells. Requiring both contexts and
+  withholding all parent aggregates prevents complementary differencing of
+  suppressed cells.
+- Add a hash-verified manifest with schema, provenance, disclosure evidence,
+  reference population, and shipped-universe metadata.
+- Include the reproducible artifact builder in the source distribution without
+  including its historical source CSV.
+- Remove classifier, prediction, and individual-inference language.
 
 ## [1.0.0] - 2025-10-07
 

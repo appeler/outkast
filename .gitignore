@@ -3,6 +3,10 @@
 !.travis.yml
 *.pyc
 *.log
+.coverage
+.venv/
+docs/_build/
+htmlcov/
 ./data
 build/
 outkast.egg-info/

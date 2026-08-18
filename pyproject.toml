@@ -4,8 +4,8 @@ build-backend = "uv_build"
 
 [project]
 name = "outkast"
-version = "1.0.1"
-description = "Infer Caste from Indian Names"
+version = "2.0.0"
+description = "Look up disclosure-limited SECC surname-group composition"
 readme = "README.rst"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -27,7 +27,8 @@ classifiers = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=0.19.2",
+    "pandas>=2.2",
+    "pyarrow>=18.0",
 ]
 
 
@@ -37,11 +38,12 @@ Repository = "https://github.com/appeler/outkast"
 Issues = "https://github.com/appeler/outkast/issues"
 
 [project.scripts]
-secc_caste = "outkast.secc_caste_ln:main"
+outkast-secc-lookup = "outkast.secc_composition:main"
 
 [tool.uv.build-backend]
 module-name = "outkast"
 module-root = ""
+source-include = ["data/secc/build_runtime_table.py"]
 
 [tool.pyright]
 include = ["outkast"]
