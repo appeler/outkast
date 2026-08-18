@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-import pandas as pd
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +28,7 @@ def column_exists(df: pd.DataFrame, col: str | int) -> bool:
         return False
 
     if col not in df.columns:
-        logger.error(f"The specified column `{col}` not found in the input file")
+        logger.error("The specified column `%s` not found in the input file", col)
         return False
 
     return True

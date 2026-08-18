@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Tests for utils.py functions
 """

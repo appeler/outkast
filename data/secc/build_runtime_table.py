@@ -176,5 +176,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     repository = Path(__file__).resolve().parents[2]
-    package_data = repository / "outkast" / "data" / "secc"
+    package_data = repository / "src" / "outkast" / "data" / "secc"
     build(args.source, package_data)

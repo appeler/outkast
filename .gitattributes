@@ -8,6 +8,7 @@
 *.html text
 *.csv text
 *.json text
+*.parquet binary
 *.pickle binary
 *.h5 binary
 *.dta binary

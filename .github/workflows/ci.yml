@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: gojiplus/py-canon/.github/workflows/reusable-ci.yml@da62c13429ab81ce240a1c1a4bbabe50dde8ccfd # v1
+    uses: gojiplus/py-canon/.github/workflows/reusable-ci.yml@v1
     with:
       wheel-import: outkast
       coverage-floor: 85
