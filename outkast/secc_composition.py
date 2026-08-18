@@ -15,7 +15,7 @@ import pandas as pd
 ARTIFACT_NAME: Final = "secc_surname_composition.parquet"
 MANIFEST_NAME: Final = "secc_surname_composition.manifest.json"
 EXPECTED_MANIFEST_SHA256: Final = (
-    "2807d477e77f1a50058014721f0157f02ca983f42c9808a18b1b4f57265611aa"
+    "2e462d523f08b2e431a70147dad37c0eb688b6dff7db7e8396a560238496960d"
 )
 
 COUNT_COLUMNS: Final = ("n_sc", "n_st", "n_other")
@@ -57,7 +57,6 @@ def _load_runtime_data() -> tuple[pd.DataFrame, dict[str, Any]]:
         table = pd.read_parquet(stream, engine="pyarrow", dtype_backend="pyarrow")
 
     expected_columns = [
-        "context_level",
         "state",
         "birth_year",
         "last_name",
@@ -68,8 +67,10 @@ def _load_runtime_data() -> tuple[pd.DataFrame, dict[str, Any]]:
         raise RuntimeError("The packaged SECC runtime table has an invalid schema")
     if len(table) != manifest["artifact"]["rows"]:
         raise RuntimeError("The packaged SECC runtime table has an invalid row count")
-    if table.duplicated(["context_level", "state", "birth_year", "last_name"]).any():
+    if table.duplicated(["state", "birth_year", "last_name"]).any():
         raise RuntimeError("The packaged SECC runtime table has duplicate cells")
+    if bool(table[["state", "birth_year", "last_name"]].isna().to_numpy().any()):
+        raise RuntimeError("The packaged SECC runtime table has incomplete cell keys")
     support = table[list(COUNT_COLUMNS)].sum(axis=1)
     minimum = manifest["disclosure_policy"]["minimum_cell_support"]
     if bool((support != table["total_support"]).any()) or bool(
@@ -99,9 +100,9 @@ def list_supported_states() -> tuple[str, ...]:
 def _validate_call(
     frame: pd.DataFrame,
     surname_column: str | int,
-    state: str | None,
-    birth_year: int | None,
-) -> tuple[str | None, int | None]:
+    state: str,
+    birth_year: int,
+) -> tuple[str, int]:
     if not isinstance(frame, pd.DataFrame):
         raise TypeError("frame must be a pandas DataFrame")
     if not frame.columns.is_unique:
@@ -115,28 +116,14 @@ def _validate_call(
         joined = ", ".join(repr(column) for column in collisions)
         raise ValueError(f"frame already contains result column(s): {joined}")
 
-    normalized_state: str | None = None
-    if state is not None:
-        if not isinstance(state, str):
-            raise TypeError("state must be a string or None")
-        normalized_state = state.strip().casefold()
-        if not normalized_state:
-            raise ValueError("state must not be empty")
-    if birth_year is not None and (
-        not isinstance(birth_year, int) or isinstance(birth_year, bool)
-    ):
-        raise TypeError("birth_year must be an integer or None")
+    if not isinstance(state, str):
+        raise TypeError("state must be a string")
+    normalized_state = state.strip().casefold()
+    if not normalized_state:
+        raise ValueError("state must not be empty")
+    if not isinstance(birth_year, int) or isinstance(birth_year, bool):
+        raise TypeError("birth_year must be an integer")
     return normalized_state, birth_year
-
-
-def _context_level(state: str | None, birth_year: int | None) -> str:
-    if state is not None and birth_year is not None:
-        return "state_birth_year"
-    if state is not None:
-        return "state"
-    if birth_year is not None:
-        return "birth_year"
-    return "national"
 
 
 def _normalize_surname(value: object) -> tuple[str | None, str | None]:
@@ -163,8 +150,8 @@ def lookup_secc_caste_composition(
     frame: pd.DataFrame,
     surname_column: str | int,
     *,
-    state: str | None = None,
-    birth_year: int | None = None,
+    state: str,
+    birth_year: int,
 ) -> pd.DataFrame:
     """Append deterministic SECC surname-group composition to a DataFrame.
 
@@ -175,8 +162,8 @@ def lookup_secc_caste_composition(
     Args:
         frame: Input observations. The input object is not modified.
         surname_column: Unique column label containing surnames.
-        state: Optional SECC state context. Matching ignores case and outer space.
-        birth_year: Optional SECC birth-year context.
+        state: Required SECC state context. Matching ignores case and outer space.
+        birth_year: Required SECC birth-year context.
 
     Returns:
         A copy of ``frame`` with counts, total support, group proportions, lookup
@@ -188,18 +175,15 @@ def lookup_secc_caste_composition(
         frame, surname_column, state, birth_year
     )
     table, manifest = _load_runtime_data()
-    context_level = _context_level(normalized_state, birth_year)
-    context = table.loc[table["context_level"] == context_level]
-    if normalized_state is not None:
-        context = context.loc[context["state"] == normalized_state]
-    if birth_year is not None:
-        context = context.loc[context["birth_year"] == birth_year]
+    context = table.loc[
+        (table["state"] == normalized_state) & (table["birth_year"] == birth_year)
+    ]
 
     supported_states = manifest["shipped_universe"]["states"]
     supported_years = manifest["shipped_universe"]["birth_years"]
-    unsupported_context = (
-        normalized_state is not None and normalized_state not in supported_states
-    ) or (birth_year is not None and birth_year not in supported_years)
+    unsupported_context = normalized_state not in supported_states or (
+        birth_year not in supported_years
+    )
 
     normalized_and_reasons = [
         _normalize_surname(value) for value in frame[surname_column].array
@@ -227,9 +211,7 @@ def lookup_secc_caste_composition(
         return result
 
     lookup = context.set_index("last_name", verify_integrity=True)
-    national_names = frozenset(
-        table.loc[table["context_level"] == "national", "last_name"]
-    )
+    national_names = frozenset(manifest["shipped_universe"]["known_surnames"])
     matched = normalized.isin(lookup.index)
 
     source_to_output = {
@@ -272,8 +254,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("input", help="Input CSV file")
     parser.add_argument("--surname-column", required=True, help="Surname column label")
-    parser.add_argument("--state", choices=list_supported_states())
-    parser.add_argument("--birth-year", type=int)
+    parser.add_argument("--state", required=True, choices=list_supported_states())
+    parser.add_argument("--birth-year", required=True, type=int)
     parser.add_argument("--output", default="secc-composition-output.csv")
     args = parser.parse_args(argv)
 

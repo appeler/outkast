@@ -43,6 +43,7 @@ outkast-secc-lookup = "outkast.secc_composition:main"
 [tool.uv.build-backend]
 module-name = "outkast"
 module-root = ""
+source-include = ["data/secc/build_runtime_table.py"]
 
 [tool.pyright]
 include = ["outkast"]

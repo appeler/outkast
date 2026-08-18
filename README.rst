@@ -22,38 +22,35 @@ languages, and religions. Group proportions cannot establish any individual's
 membership. The reference data and historical preprocessing may contain
 coverage, recording, and selection errors.
 
-The package does not ship a cell with fewer than 100 reference records. It
-aggregates each supported context independently and then suppresses cells, so a
-broad cell is not the sum of the detailed cells that remain. The threshold
-retains the following share of reference-record support:
-
-======================  ================  ==============
-Context                 Support retained  Cells retained
-======================  ================  ==============
-Surname                 100.0%            100.0%
-State and surname       99.47%            32.85%
-Birth year and surname  88.93%            16.77%
-State, year, surname    83.45%            7.51%
-======================  ================  ==============
+The package releases only state, birth year, and surname cells with at least
+100 reference records. It does not release national, state-only, or
+birth-year-only counts. A user therefore cannot recover a suppressed detailed
+cell by subtracting released children from a released parent total. All rows in
+the artifact have the same fixed granularity. This guarantee applies to current
+distribution artifacts. It cannot revoke data from repository history or older
+package releases.
 
 Cell retention is low by design because the removed cells are small. Support
-retention measures the share of the 93,366,763 records represented by retained
-cells at each context level. These figures measure artifact coverage, not
-coverage of India's population or of new input names.
+retention measures the share of about 93.4 million reference records
+represented by released state, birth year, and surname cells. At the minimum
+support of 100, the artifact retains 83.45% of record support and 7.51% of
+source cells. These figures measure artifact coverage, not coverage of India's
+population or of new input names. The manifest rounds coverage ratios to four
+decimal places and does not release the exact source or suppressed support
+totals.
 
 The threshold sensitivity below reports support retention, not cell retention.
-A floor of 100 keeps more than 83% of support at every context level while
-suppressing 92.49% of the most detailed cells. A floor of 200 would lower
-detailed-context support retention below 80%.
+A floor of 100 suppresses 92.49% of source cells. A floor of 200 would lower
+support retention below 80%.
 
-=========  ========  ======  ==========  =====================
-Minimum    Surname   State   Birth year  State and birth year
-=========  ========  ======  ==========  =====================
-20         100.0%    99.87%  98.23%      95.22%
-50         100.0%    99.71%  94.02%      89.53%
-100        100.0%    99.47%  88.93%      83.45%
-200        100.0%    99.06%  82.92%      76.44%
-=========  ========  ======  ==========  =====================
+=========  ================  ==============
+Minimum    Support retained  Cells retained
+=========  ================  ==============
+20         95.22%            25.99%
+50         89.53%            13.53%
+100        83.45%            7.51%
+200        76.44%            4.03%
+=========  ================  ==============
 
 The package exposes observed counts and proportions. It does not report
 multinomial intervals. Such intervals would describe sampling variation under a
@@ -74,7 +71,8 @@ Python API
 
 ``lookup_secc_caste_composition`` preserves the input row count, order, and
 index. It raises on missing or duplicate input columns and on result-column
-collisions.
+collisions. Every call requires both ``state`` and ``birth_year`` because the
+package does not distribute broader aggregates.
 
 .. code-block:: python
 
@@ -117,18 +115,18 @@ Command line
 Data and artifact integrity
 ---------------------------
 
-The typed Parquet runtime table contains four independently aggregated context
-levels. The package verifies the table and immutable JSON manifest by SHA-256
-before the first lookup. The manifest records the schema, hashes, disclosure
-rule, provenance, reference-record count, supported states and years, context
-cell counts, coverage, and a hash of the sorted national surname universe.
+The typed Parquet runtime table contains one fixed-granularity hierarchy. The
+package verifies the table and immutable JSON manifest by SHA-256 before the
+first lookup. The manifest records the schema, hashes, release design,
+provenance, reference population, supported states and years, coverage, and a
+count-free surname vocabulary. That vocabulary distinguishes names absent from
+the source from contextual cells withheld for insufficient support.
 
 The source is the parsed `SECC 2011 dataset
-<https://doi.org/10.7910/DVN/LIIBNB>`__. The historical source artifact has
-SHA-256
-``b190982755a5bf1e577ebde75fa9334f8d94fed27c2ce0ea7b255b31d22c991c``.
-Run ``data/secc/build_runtime_table.py`` with a verified copy of that artifact
-to reproduce the packaged table and manifest.
+<https://doi.org/10.7910/DVN/LIIBNB>`__. The source distribution includes
+``data/secc/build_runtime_table.py``. Run it with the historical source artifact
+to reproduce the packaged table and manifest. The source CSV itself is not
+included.
 
 License
 -------

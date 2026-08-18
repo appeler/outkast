@@ -20,6 +20,10 @@ def test_cli_writes_explicit_lookup_fields(tmp_path: Path) -> None:
             str(source),
             "--surname-column",
             "surname",
+            "--state",
+            "bihar",
+            "--birth-year",
+            "1949",
             "--output",
             str(output),
         ]
@@ -36,4 +40,22 @@ def test_cli_rejects_unknown_state(tmp_path: Path) -> None:
     pd.DataFrame({"surname": ["patel"]}).to_csv(source, index=False)
 
     with pytest.raises(SystemExit):
-        main([str(source), "--surname-column", "surname", "--state", "unknown"])
+        main(
+            [
+                str(source),
+                "--surname-column",
+                "surname",
+                "--state",
+                "unknown",
+                "--birth-year",
+                "1949",
+            ]
+        )
+
+
+def test_cli_requires_both_contexts(tmp_path: Path) -> None:
+    source = tmp_path / "input.csv"
+    pd.DataFrame({"surname": ["patel"]}).to_csv(source, index=False)
+
+    with pytest.raises(SystemExit):
+        main([str(source), "--surname-column", "surname"])

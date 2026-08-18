@@ -9,13 +9,15 @@ from outkast import lookup_secc_caste_composition
 from outkast.secc_composition import OUTPUT_COLUMNS
 
 
-def test_national_lookup_preserves_rows_index_and_input() -> None:
+def test_contextual_lookup_preserves_rows_index_and_input() -> None:
     frame = pd.DataFrame(
         {"surname": ["PATEL", "  lal ", "notintable"]}, index=[7, 7, 2]
     )
     original = frame.copy()
 
-    result = lookup_secc_caste_composition(frame, "surname")
+    result = lookup_secc_caste_composition(
+        frame, "surname", state="bihar", birth_year=1949
+    )
 
     pd.testing.assert_frame_equal(frame, original)
     assert result.index.tolist() == [7, 7, 2]
@@ -27,7 +29,7 @@ def test_national_lookup_preserves_rows_index_and_input() -> None:
     ]
     assert result["secc_abstention_reason"].tolist()[:2] == [pd.NA, pd.NA]
     assert result.iloc[2]["secc_abstention_reason"] == "out_of_vocabulary"
-    assert result.iloc[0]["secc_total_support"] == 749_376
+    assert result.iloc[0]["secc_total_support"] == 1_605
     assert result.iloc[0]["secc_total_support"] == sum(
         result.iloc[0][column]
         for column in ("secc_count_sc", "secc_count_st", "secc_count_other")
@@ -45,7 +47,9 @@ def test_national_lookup_preserves_rows_index_and_input() -> None:
 def test_explicit_abstention_reasons() -> None:
     frame = pd.DataFrame({"surname": [None, "   ", "पटेल", "notintable", "aade", 123]})
 
-    result = lookup_secc_caste_composition(frame, "surname", state="kerala")
+    result = lookup_secc_caste_composition(
+        frame, "surname", state="kerala", birth_year=1985
+    )
 
     assert result["secc_lookup_status"].tolist() == ["abstained"] * 6
     assert result["secc_abstention_reason"].tolist() == [
@@ -108,35 +112,57 @@ def test_detailed_context_can_match_at_disclosure_floor() -> None:
 def test_context_argument_validation(
     kwargs: dict[str, object], error: type[Exception]
 ) -> None:
+    arguments = {"state": "bihar", "birth_year": 1949, **kwargs}
     with pytest.raises(error):
         lookup_secc_caste_composition(
-            pd.DataFrame({"surname": ["patel"]}), "surname", **kwargs
+            pd.DataFrame({"surname": ["patel"]}), "surname", **arguments
+        )
+
+
+def test_state_and_birth_year_are_mandatory() -> None:
+    frame = pd.DataFrame({"surname": ["patel"]})
+    with pytest.raises(TypeError):
+        lookup_secc_caste_composition(frame, "surname")  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        lookup_secc_caste_composition(  # type: ignore[call-arg]
+            frame, "surname", state="bihar"
         )
 
 
 def test_frame_and_column_validation() -> None:
     frame = pd.DataFrame({"surname": ["patel"]})
     with pytest.raises(TypeError):
-        lookup_secc_caste_composition([], "surname")  # type: ignore[arg-type]
+        lookup_secc_caste_composition(  # type: ignore[arg-type]
+            [], "surname", state="bihar", birth_year=1949
+        )
     with pytest.raises(KeyError):
-        lookup_secc_caste_composition(frame, "missing")
+        lookup_secc_caste_composition(frame, "missing", state="bihar", birth_year=1949)
     with pytest.raises(TypeError):
-        lookup_secc_caste_composition(frame, True)  # type: ignore[arg-type]
+        lookup_secc_caste_composition(  # type: ignore[arg-type]
+            frame, True, state="bihar", birth_year=1949
+        )
 
     duplicated = pd.DataFrame([["patel", "lal"]], columns=["surname", "surname"])
     with pytest.raises(ValueError, match="unique column labels"):
-        lookup_secc_caste_composition(duplicated, "surname")
+        lookup_secc_caste_composition(
+            duplicated, "surname", state="bihar", birth_year=1949
+        )
 
 
 @pytest.mark.parametrize("collision", OUTPUT_COLUMNS)
 def test_result_column_collisions_raise(collision: str) -> None:
     frame = pd.DataFrame({"surname": ["patel"], collision: [None]})
     with pytest.raises(ValueError, match="already contains"):
-        lookup_secc_caste_composition(frame, "surname")
+        lookup_secc_caste_composition(frame, "surname", state="bihar", birth_year=1949)
 
 
 def test_empty_frame_has_complete_typed_schema() -> None:
-    result = lookup_secc_caste_composition(pd.DataFrame({"surname": []}), "surname")
+    result = lookup_secc_caste_composition(
+        pd.DataFrame({"surname": []}),
+        "surname",
+        state="bihar",
+        birth_year=1949,
+    )
 
     assert len(result) == 0
     assert tuple(result.columns[-len(OUTPUT_COLUMNS) :]) == OUTPUT_COLUMNS
