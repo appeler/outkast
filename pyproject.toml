@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build>=0.9.17,<0.13.0"]
+requires = ["uv_build>=0.12.5,<0.13"]
 build-backend = "uv_build"
 
 [project]
@@ -13,7 +13,7 @@ authors = [
     {name = "Gaurav Sood", email = "gsood07@gmail.com"},
     {name = "Suriyan Laohaprapanon", email = "suriyant@gmail.com"},
 ]
-keywords = ["caste", "names", "india"]
+keywords = ["caste", "demography", "india", "names", "secc"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -28,7 +28,7 @@ classifiers = [
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=3.0.5",
-    "pyarrow>=18.0",
+    "pyarrow>=25",
 ]
 
 
@@ -42,11 +42,11 @@ outkast-secc-lookup = "outkast.secc_composition:main"
 
 [tool.uv.build-backend]
 module-name = "outkast"
-module-root = ""
+module-root = "src"
 source-include = ["data/secc/build_runtime_table.py"]
 
 [tool.pyright]
-include = ["outkast"]
+include = ["src"]
 typeCheckingMode = "standard"
 
 [tool.pydoclint]
@@ -56,6 +56,7 @@ check-return-types = false
 check-class-attributes = false
 allow-init-docstring = true
 exclude = '\.venv|tests|docs'
+
 [dependency-groups]
 dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.7.0", "pre-commit>=3.0", "pyright>=1.1.390", "pydoclint>=0.5"]
 test = ["pytest>=7.0", "pytest-cov>=4.0"]
@@ -75,24 +76,32 @@ extend-exclude = ["data"]
 
 [tool.ruff.lint]
 external = ["DOC"]
-select = ["E", "W", "F", "I", "B", "C4", "UP", "N", "D", "S", "SIM", "T20", "PT", "RUF"]
-ignore = ["D203", "D213", "B008", "E501"]
+select = [
+    "E", "W", "F", "I", "B", "C4", "UP", "N", "D", "S", "SIM", "T20", "PT", "RUF",
+    "PTH", "RET", "PIE", "FURB", "PERF", "DTZ", "LOG", "G", "TC", "FLY",
+    "RSE", "SLOT", "FA", "A", "EXE", "ICN", "PGH", "PLE", "ARG", "SLF",
+]
+# D203/D213: the google convention the fleet standard picks. W191/D206/D300:
+# ruff's own docs list these as always incompatible with `ruff format`, which
+# the standard also runs.
+ignore = ["D203", "D213", "W191", "D206", "D300", "B008", "E501"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "D"]
+"tests/**" = ["S101", "D", "ARG", "SLF"]
 "docs/**" = ["D"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 
 [tool.coverage.run]
-source = ["outkast"]
+source = ["src/outkast"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -103,6 +112,8 @@ exclude_lines = [
 ]
 
 [tool.deptry]
-extend_exclude = ["data"]
+extend_exclude = ["data", "docs"]
 ignore_notebooks = true
-pep621_dev_dependency_groups = ["docs"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = ["pyarrow"]

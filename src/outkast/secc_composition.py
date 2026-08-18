@@ -170,7 +170,15 @@ def lookup_secc_caste_composition(
         status, and abstention reason appended. Row count, order, and index are
         preserved.
 
-    """
+    Raises:
+        TypeError: If an argument has the wrong type.
+        ValueError: If columns are duplicated, output columns collide, or state
+            is empty.
+        KeyError: If ``surname_column`` is not present in ``frame``.
+        RuntimeError: If the packaged table contains duplicate surnames in the
+            requested context.
+
+    """  # noqa: DOC503
     normalized_state, birth_year = _validate_call(
         frame, surname_column, state, birth_year
     )
@@ -210,7 +218,9 @@ def lookup_secc_caste_composition(
         )
         return result
 
-    lookup = context.set_index("last_name", verify_integrity=True)
+    lookup = context.set_index("last_name")
+    if not lookup.index.is_unique:
+        raise RuntimeError("The packaged SECC runtime table has duplicate surnames")
     national_names = frozenset(manifest["shipped_universe"]["known_surnames"])
     matched = normalized.isin(lookup.index)
 

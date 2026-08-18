@@ -13,6 +13,11 @@ time, and inventing one here would be worse than saying so.
 
 ### Changed
 
+- Adopt the py-canon project structure, quality checks, and release workflow.
+- Move the import package to the standard ``src`` layout.
+- Convert the checked-in state-code table and derived notebook outputs to typed,
+  Zstandard-compressed Parquet.
+- Remove a pandas 3.0 deprecation from runtime lookups.
 - Replace `secc_caste` with the breaking
   `lookup_secc_caste_composition` aggregate lookup API.
 - Return explicit match status, abstention reasons, and total support while
