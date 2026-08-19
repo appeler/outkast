@@ -19,4 +19,5 @@ jobs:
     uses: gojiplus/py-canon/.github/workflows/reusable-ci.yml@v1
     with:
       wheel-import: outkast
-      coverage-floor: 85
+      coverage-floor: 90
+      run-preen: true
