@@ -4,18 +4,69 @@ from __future__ import annotations
 
 import hashlib
 import json
-from importlib import resources
+from importlib import resources, util
+from pathlib import Path
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 
-from data.secc.build_runtime_table import build
 from outkast import get_secc_data_manifest, list_supported_states
 from outkast.secc_composition import (
     ARTIFACT_NAME,
     EXPECTED_MANIFEST_SHA256,
     MANIFEST_NAME,
 )
+
+
+def _load_build():
+    """Load build() from the repo-local build script, which is not a package."""
+    script = Path(__file__).resolve().parents[1] / "data" / "secc"
+    spec = util.spec_from_file_location(
+        "build_runtime_table", script / "build_runtime_table.py"
+    )
+    assert spec is not None
+    assert spec.loader is not None
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.build
+
+
+build = _load_build()
+
+
+def test_artifact_schema_matches_build_runtime_table() -> None:
+    """The shipped Parquet carries the Arrow schema build_runtime_table writes.
+
+    The dictionary index width is not pinned: the builder writes int8 indices,
+    but pyarrow only restores the stored index width from ARROW:schema metadata
+    since 20.0; older supported readers surface int32 indices for the same file.
+    """
+    data_root = resources.files("outkast") / "data" / "secc"
+    with (data_root / ARTIFACT_NAME).open("rb") as stream:
+        schema = pq.read_table(stream).schema
+
+    expected_names = [
+        "state",
+        "birth_year",
+        "last_name",
+        "n_sc",
+        "n_st",
+        "n_other",
+        "total_support",
+    ]
+    assert schema.names == expected_names
+    assert all(not field.nullable for field in schema)
+
+    state = schema.field("state").type
+    assert pa.types.is_dictionary(state)
+    assert pa.types.is_integer(state.index_type)
+    assert state.value_type == pa.string()
+    assert schema.field("birth_year").type == pa.int16()
+    assert schema.field("last_name").type == pa.string()
+    for count_column in ("n_sc", "n_st", "n_other", "total_support"):
+        assert schema.field(count_column).type == pa.uint32()
 
 
 def test_manifest_and_artifact_hashes_are_immutable() -> None:

@@ -28,7 +28,9 @@ classifiers = [
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=3.0.5",
-    "pyarrow>=25",
+    # 19.0.0 cannot read the shipped artifact ("Repetition level histogram
+    # size mismatch" on files carrying size statistics); 18.x and 19.0.1+ can.
+    "pyarrow>=18,!=19.0.0",
 ]
 
 
@@ -84,7 +86,7 @@ select = [
 # D203/D213: the google convention the fleet standard picks. W191/D206/D300:
 # ruff's own docs list these as always incompatible with `ruff format`, which
 # the standard also runs.
-ignore = ["D203", "D213", "W191", "D206", "D300", "B008", "E501"]
+ignore = ["D203", "D213", "W191", "D206", "D300", "B008"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -95,7 +97,6 @@ convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
