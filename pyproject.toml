@@ -60,7 +60,7 @@ allow-init-docstring = true
 exclude = '\.venv|tests|docs'
 
 [dependency-groups]
-dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.7.0", "pre-commit>=3.0", "pyright>=1.1.390", "pydoclint>=0.5"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.16.3", "pre-commit>=4.6.2", "pyright>=1.1.390", "pydoclint>=0.5"]
 test = ["pytest>=7.0", "pytest-cov>=4.0"]
 docs = [
     "sphinx>=7.0",
