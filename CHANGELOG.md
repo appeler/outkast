@@ -55,7 +55,7 @@ Modernization release, five years after 0.2.1.
 
 Initial release.
 
-[Unreleased]: https://github.com/appeler/outkast/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/appeler/outkast/compare/v2.0.0...HEAD
 [2.0.1]: https://pypi.org/project/outkast/2.0.1/
 [1.0.0]: https://pypi.org/project/outkast/1.0.0/
 [0.2.1]: https://github.com/appeler/outkast/releases/tag/v.0.2.1

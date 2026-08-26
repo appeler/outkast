@@ -3,7 +3,7 @@ _commit: v1.1.0
 _src_path: gh:gojiplus/py-canon
 author_email: gsood07@gmail.com
 author_name: Gaurav Sood
-coverage_floor: 85
+coverage_floor: 90
 default_branch: master
 description: Look up disclosure-limited SECC surname-group composition
 needs_cli: true
