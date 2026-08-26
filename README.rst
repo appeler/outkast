@@ -87,6 +87,11 @@ package does not distribute broader aggregates.
        birth_year=1949,
    )
 
+``list_supported_states`` returns the states the table covers, and
+``get_secc_data_manifest`` returns the manifest described below. Both are useful
+before a lookup, because a state or birth year outside the shipped universe
+abstains the whole frame with ``unsupported_context``.
+
 The appended fields are:
 
 * ``secc_count_sc``, ``secc_count_st``, and ``secc_count_other``
