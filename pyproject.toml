@@ -122,3 +122,6 @@ ignore_notebooks = true
 
 [tool.deptry.per_rule_ignores]
 DEP002 = ["pyarrow"]
+
+[tool.codespell]
+builtin = "clear,rare,en-GB_to_en-US"
