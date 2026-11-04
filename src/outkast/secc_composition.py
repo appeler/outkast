@@ -8,7 +8,7 @@ import json
 import sys
 from copy import deepcopy
 from importlib import resources
-from typing import Any, Final
+from typing import Any, Final, cast
 
 import pandas as pd
 
@@ -234,7 +234,10 @@ def lookup_secc_caste_composition(
         result[output] = pd.array(normalized.map(lookup[source]), dtype="UInt64")
     for category in ("sc", "st", "other"):
         result[f"secc_proportion_{category}"] = pd.array(
-            result[f"secc_count_{category}"] / result["secc_total_support"],
+            cast(
+                "pd.Series",
+                result[f"secc_count_{category}"] / result["secc_total_support"],
+            ),
             dtype="Float64",
         )
 
