@@ -10,7 +10,7 @@ readme = "README.rst"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
-    {name = "Gaurav Sood", email = "gsood07@gmail.com"},
+    {name = "Gaurav Sood"},
     {name = "Suriyan Laohaprapanon", email = "suriyant@gmail.com"},
 ]
 keywords = ["caste", "demography", "india", "names", "secc"]
